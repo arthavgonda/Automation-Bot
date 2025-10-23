@@ -1,0 +1,557 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:EitherAssistant.ViewModels"
+        xmlns:converters="using:EitherAssistant.Converters"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="EitherAssistant.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="EitherAssistant"
+        Width="1200"
+        Height="800"
+        MinWidth="900"
+        MinHeight="650"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        TransparencyLevelHint="AcrylicBlur"
+        RequestedThemeVariant="{Binding CurrentTheme}">
+
+    <Window.Resources>
+        <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
+    </Window.Resources>
+
+    <Panel>
+        <!-- DYNAMIC GRADIENT BACKGROUND -->
+        <Panel.Background>
+            <RadialGradientBrush Center="0.5,0.5" RadiusX="1.3" RadiusY="1.3">
+                <GradientStop Color="#030305" Offset="0"/>
+                <GradientStop Color="#0A0A12" Offset="0.25"/>
+                <GradientStop Color="#12121E" Offset="0.5"/>
+                <GradientStop Color="#1A1A2E" Offset="0.7"/>
+                <GradientStop Color="#14142A" Offset="0.85"/>
+                <GradientStop Color="#080810" Offset="1"/>
+            </RadialGradientBrush>
+        </Panel.Background>
+        
+        <!-- AMBIENT LIGHTING SYSTEM -->
+        <Canvas ClipToBounds="False" IsHitTestVisible="False">
+            <Ellipse Width="700" Height="700" 
+                     Canvas.Left="-250" Canvas.Top="-250"
+                     Opacity="0.18">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#7C6CFF" Offset="0"/>
+                        <GradientStop Color="#5844EF" Offset="0.4"/>
+                        <GradientStop Color="#4834DF" Offset="0.7"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            
+            <Ellipse Width="800" Height="800"
+                     Canvas.Right="-300" Canvas.Bottom="-300"
+                     Opacity="0.15">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#10D4FF" Offset="0"/>
+                        <GradientStop Color="#0099EE" Offset="0.4"/>
+                        <GradientStop Color="#0082F0" Offset="0.7"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            
+            <Ellipse Width="600" Height="600"
+                     Canvas.Left="300" Canvas.Top="100"
+                     Opacity="0.1">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#FF7BAD" Offset="0"/>
+                        <GradientStop Color="#EE5588" Offset="0.5"/>
+                        <GradientStop Color="#C44569" Offset="0.8"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+        </Canvas>
+        
+        <!-- MAIN CONTENT GRID -->
+        <Grid Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- SIDEBAR -->
+            <Border Grid.Column="0" 
+                    Classes="sidebar-liquid-glass"
+                    Margin="28,28,14,28">
+                
+                <Grid Margin="36,44,36,36">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- LOGO HEADER -->
+                    <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center" Margin="0,0,0,25">
+                        <TextBlock Text="EITHER" 
+                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                   FontSize="28" 
+                                   FontWeight="Black"
+                                   Classes="theme-text"
+                                   HorizontalAlignment="Center"
+                                   LetterSpacing="2.5"
+                                   Opacity="0.98"/>
+                        
+                        <TextBlock Text="ASSISTANT" 
+                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                   FontSize="25" 
+                                   FontWeight="Black"
+                                   Foreground="#7C6CFF"
+                                   HorizontalAlignment="Center"
+                                   LetterSpacing="2.5"
+                                   Margin="0,-12,0,0">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#6C63FF" BlurRadius="25" OffsetX="0" OffsetY="0" Opacity="0.7"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        
+                        <Border Height="2" Width="120" Margin="0,16,0,0" CornerRadius="1" Opacity="0.3">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                    <GradientStop Color="Transparent" Offset="0"/>
+                                    <GradientStop Color="#7C6CFF" Offset="0.5"/>
+                                    <GradientStop Color="Transparent" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                    </StackPanel>
+                    
+                    <!-- NAVIGATION -->
+                    <ScrollViewer Grid.Row="1" 
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="0,0,25,0"
+                                  HorizontalAlignment="Center">
+                        <StackPanel Spacing="40">
+                            
+                            <!-- MAIN SECTION -->
+                            <StackPanel Spacing="18">
+                                <TextBlock Text="MAIN" 
+                                           FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                           FontSize="11" 
+                                           FontWeight="Black"
+                                           Classes="theme-text"
+                                           Opacity="0.55"
+                                           LetterSpacing="2"
+                                           Margin="6,0,0,10"/>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Width="135"
+                                        Height="50"
+                                        Command="{Binding NavigateToVoiceAssistantCommand}"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Padding="5,0">
+                                        
+                                        <TextBlock Text="Voice Assistant" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="Bold"
+                                                   Classes="theme-text"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                </Button>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Width="135"
+                                        Height="50"
+                                        Command="{Binding NavigateToFavoritesCommand}"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center">
+                                        
+                                        <TextBlock Text="Favorites" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="SemiBold"
+                                                   Classes="theme-text"
+                                                   Opacity="0.95"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"/>
+                                </Button>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Height="50"
+                                        Width="135"
+                                        Command="{Binding NavigateToMyCommandsCommand}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="5,0">
+                                        
+                                        <TextBlock Text="My Commands" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="SemiBold"
+                                                   Classes="theme-text"
+                                                   Opacity="0.95"
+                                                   VerticalAlignment="Center"
+                                                   TextWrapping="NoWrap"/>
+                                </Button>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Width="135"
+                                        Height="50"
+                                        Command="{Binding NavigateToProgressCommand}"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="5,0">
+                                        
+                                        <TextBlock Text="Progress" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="SemiBold"
+                                                   Classes="theme-text"
+                                                   Opacity="0.95"
+                                                   VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                            
+                            <!-- CATEGORIES SECTION -->
+                            <StackPanel Spacing="18">
+                                <TextBlock Text="CATEGORIES" 
+                                           FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                           FontSize="11" 
+                                           FontWeight="Black"
+                                           Classes="theme-text"
+                                           Opacity="0.55"
+                                           LetterSpacing="2"
+                                           Margin="6,0,0,10"/>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Width="135"
+                                        Height="50"
+                                        Command="{Binding NavigateToSystemCommand}"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="5,0">
+                                        
+                                        <TextBlock Text="System" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="SemiBold"
+                                                   Classes="theme-text"
+                                                   Opacity="0.95"
+                                                   VerticalAlignment="Center"/>
+                                </Button>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Width="135"
+                                        Height="50"
+                                        Command="{Binding NavigateToWebCommand}"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="5,0">
+                                        
+                                        <TextBlock Text="Web" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="SemiBold"
+                                                   Classes="theme-text"
+                                                   Opacity="0.95"
+                                                   VerticalAlignment="Center"/>
+
+                                </Button>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Width="135"
+                                        Height="50"
+                                        Command="{Binding NavigateToFilesCommand}"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="5,0">
+                                        
+                                        <TextBlock Text="Files" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="SemiBold"
+                                                   Classes="theme-text"
+                                                   Opacity="0.95"
+                                                   VerticalAlignment="Center"/>
+
+                                </Button>
+                                
+                                <Button Classes="sidebar-button-liquid"
+                                        Width="135"
+                                        Height="50"
+                                        Command="{Binding NavigateToSearchCommand}"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="5,0">
+                                        <TextBlock Text="Search" 
+                                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                                   FontSize="15" 
+                                                   FontWeight="SemiBold"
+                                                   Classes="theme-text"
+                                                   Opacity="0.95"
+                                                   VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+            
+            <!-- MAIN CONTENT PANEL -->
+            <Border Grid.Column="1" 
+                    Classes="main-liquid-glass"
+                    Margin="14,28,28,28">
+                
+                <Grid Margin="48,48,48,48">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- HEADER SECTION -->
+                    <StackPanel Grid.Row="0" Spacing="32">
+                        <TextBlock Text="Voice Assistant" 
+                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                   FontSize="40" 
+                                   FontWeight="Black"
+                                   Classes="theme-text"
+                                   LetterSpacing="0.8">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#FFFFFF" BlurRadius="35" OffsetX="0" OffsetY="0" Opacity="0.35"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        
+                        <TextBlock Text="Search for commands by category or use voice input for natural interaction" 
+                                   FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                   FontSize="16" 
+                                   Classes="theme-text"
+                                   Opacity="0.78"
+                                   TextWrapping="Wrap"
+                                   LineHeight="26"
+                                   MaxWidth="700"
+                                   HorizontalAlignment="Left"/>
+                        
+                        <!-- SEARCH BAR -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18" Margin="0,15,0,0">
+                            <TextBox Grid.Column="0"
+                                    Classes="search-input-liquid"
+                                    Text="{Binding InputText}"
+                                    Watermark="Enter command (e.g., create file, search web, system info)"
+                                    Height="60"
+                                    CornerRadius="20"
+                                    Padding="26,0"
+                                    FontSize="15"
+                                    VerticalContentAlignment="Center">
+                                <TextBox.KeyBindings>
+                                    <KeyBinding Gesture="Enter" Command="{Binding SendMessageCommand}"/>
+                                </TextBox.KeyBindings>
+                            </TextBox>
+
+                            
+                            <Button Grid.Column="1"
+                                    Classes="search-button-liquid"
+                                    Command="{Binding SendMessageCommand}"
+                                    Height="60"
+                                    Width="160"
+                                    Padding="5,0"
+                                    HorizontalContentAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                    <TextBlock Text="Send" 
+                                               FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                               FontSize="16" 
+                                               FontWeight="Bold"
+                                               Foreground="#FFFFFF"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="➤" FontSize="22" Foreground="#FFFFFF" VerticalAlignment="Center" Margin="0,-3,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                        
+                        <!-- QUICK SELECT PILLS -->
+                        <StackPanel Spacing="20" Margin="0,15,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="14">
+                                <TextBlock Text="Quick select:" 
+                                           FontFamily="Segoe UI, Inter, SF Pro Display" 
+                                           FontSize="14" 
+                                           FontWeight="Bold"
+                                           Classes="theme-text"
+                                           Opacity="0.75"
+                                           VerticalAlignment="Center"
+                                           LetterSpacing="0.3"/>
+                            </StackPanel>
+                            
+                            <WrapPanel>
+                                <Button Classes="quick-select-liquid" Content="System" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectSystemCommand}"/>
+                                <Button Classes="quick-select-liquid" Content="Web" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectWebCommand}"/>
+                                <Button Classes="quick-select-liquid" Content="Files" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectFilesCommand}"/>
+                                <Button Classes="quick-select-liquid" Content="Search" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectSearchCommand}"/>
+                                <Button Classes="quick-select-liquid" Content="Voice" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectVoiceCommand}"/>
+                                <Button Classes="quick-select-liquid" Content="Apps" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectAppsCommand}"/>
+                                <Button Classes="quick-select-liquid" Content="Settings" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectSettingsCommand}"/>
+                                <Button Classes="quick-select-liquid" Content="Help" Height="40" MinWidth="80" FontSize="12" Margin="0,0,12,12" Command="{Binding QuickSelectHelpCommand}"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <ScrollViewer Grid.Row="1" 
+                                  Name="MessageScroller"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Margin="0,10,0,0"
+                                  Padding="0,0,5,0">
+                        <ItemsControl ItemsSource="{Binding Messages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Apple-Style Message Container -->
+                                    <Grid Margin="0,6,0,6">
+                                        <!-- User Message (Right-aligned) -->
+                                        <Border Classes="message-user"
+                                                IsVisible="{Binding IsUser}">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="{Binding Content}" 
+                                                           Classes="message-content"
+                                                           FontFamily="Segoe UI, SF Pro Text, Inter" 
+                                                           TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Timestamp}" 
+                                                           Classes="message-timestamp"
+                                                           HorizontalAlignment="Right"/>
+                                            </StackPanel>
+                                        </Border>
+                                        
+                                        <!-- Assistant Message (Left-aligned) -->
+                                        <Border Classes="message-assistant"
+                                                IsVisible="{Binding !IsUser}">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="{Binding Content}" 
+                                                           Classes="message-content"
+                                                           FontFamily="Segoe UI, SF Pro Text, Inter" 
+                                                           TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Timestamp}" 
+                                                           Classes="message-timestamp"
+                                                           HorizontalAlignment="Right"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <!-- ACTION BUTTONS FOOTER -->
+                    <StackPanel Grid.Row="2" 
+                                Orientation="Horizontal" 
+                                Spacing="16" 
+                                HorizontalAlignment="Right"
+                                Margin="0,32,0,0">
+                        
+                        <Button Classes="voice-toggle-liquid"
+                                Command="{Binding ToggleVoiceCommand}"
+                                Height="40"
+                                Width="30"
+                                Padding="0"
+                                ToolTip.Tip="Toggle Voice Input">
+                            <Image Source="avares://EitherAssistant/Assets/mic.png" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                        
+                        <Button Classes="action-button-liquid"
+                                Command="{Binding ClearChatCommand}"
+                                Height="40"
+                                Width="30"
+                                Padding="0"
+                                ToolTip.Tip="Clear Chat">
+                            <Image Source="avares://EitherAssistant/Assets/bin.png" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                        
+                        <Button Classes="action-button-liquid"
+                                Command="{Binding ExportChatCommand}"
+                                Height="40"
+                                Width="30"
+                                Padding="0"
+                                ToolTip.Tip="Export Chat">
+                            <Image Source="avares://EitherAssistant/Assets/save.png" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                        
+                        <Button Classes="action-button-liquid"
+                                Command="{Binding OpenSettingsCommand}"
+                                Height="40"
+                                Width="30"
+                                Padding="0"
+                                ToolTip.Tip="Settings">
+                            <Image Source="avares://EitherAssistant/Assets/setting.png" Width="20" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+        
+        <!-- FLOATING STATUS BAR -->
+        <Border Classes="status-liquid-glass"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,36">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <!-- Connection Status Dot - Online -->
+                <Border Width="11" Height="11" CornerRadius="6" VerticalAlignment="Center"
+                        IsVisible="{Binding ConnectionStatus, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Online}">
+                    <Border.Background>
+                        <SolidColorBrush Color="#00FF88"/>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect Color="#00FF88" BlurRadius="18" OffsetX="0" OffsetY="0" Opacity="1"/>
+                    </Border.Effect>
+                </Border>
+                
+                <!-- Connection Status Dot - Offline -->
+                <Border Width="11" Height="11" CornerRadius="6" VerticalAlignment="Center"
+                        IsVisible="{Binding ConnectionStatus, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Offline}">
+                    <Border.Background>
+                        <SolidColorBrush Color="#FF4444"/>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect Color="#FF4444" BlurRadius="18" OffsetX="0" OffsetY="0" Opacity="1"/>
+                    </Border.Effect>
+                </Border>
+                
+                <!-- Connection Status Dot - Connecting -->
+                <Border Width="11" Height="11" CornerRadius="6" VerticalAlignment="Center"
+                        IsVisible="{Binding ConnectionStatus, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Connecting...}">
+                    <Border.Background>
+                        <SolidColorBrush Color="#FFBF00"/>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect Color="#FFBF00" BlurRadius="18" OffsetX="0" OffsetY="0" Opacity="1"/>
+                    </Border.Effect>
+                </Border>
+                
+                <!-- Connection Status Text -->
+                <TextBlock Text="{Binding ConnectionStatus}"
+                           FontFamily="Segoe UI, Inter, SF Pro Display" 
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Classes="theme-text"
+                           Opacity="0.85"
+                           LetterSpacing="0.3"
+                           VerticalAlignment="Center"/>
+                
+                <Border Width="1" Height="20" Background="#40FFFFFF" VerticalAlignment="Center" Margin="4,0"/>
+                
+                <!-- Status Text -->
+                <TextBlock Text="{Binding StatusText}" 
+                           FontFamily="Segoe UI, Inter, SF Pro Display" 
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Classes="theme-text"
+                           Opacity="0.92"
+                           LetterSpacing="0.3"
+                           VerticalAlignment="Center"
+                           MaxWidth="600"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+        </Border>
+    </Panel>
+</Window>

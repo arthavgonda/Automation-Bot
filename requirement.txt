@@ -1,0 +1,11 @@
+numpy
+torch
+torchaudio
+transformers
+sounddevice
+scipy
+noisereduce
+webrtcvad
+vosk
+selenium
+webdriver-manager

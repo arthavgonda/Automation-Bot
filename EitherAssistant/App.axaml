@@ -1,0 +1,837 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="EitherAssistant.App"
+             RequestedThemeVariant="Dark">
+    
+    <Application.Resources>
+        <!-- Theme Color Definitions -->
+        <ResourceDictionary>
+            <!-- Dark Theme Colors -->
+            <SolidColorBrush x:Key="DarkPrimaryBrush" Color="#6C63FF"/>
+            <SolidColorBrush x:Key="DarkBackgroundBrush" Color="#050508"/>
+            <SolidColorBrush x:Key="DarkSurfaceBrush" Color="#1A1A2E"/>
+            <SolidColorBrush x:Key="DarkTextBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="DarkTextSecondaryBrush" Color="#B8B8B8"/>
+            <SolidColorBrush x:Key="DarkUserMessageBrush" Color="#6C63FF"/>
+            <SolidColorBrush x:Key="DarkAssistantMessageBrush" Color="#2A2A3E"/>
+            
+            <!-- Light Theme Colors -->
+            <SolidColorBrush x:Key="LightPrimaryBrush" Color="#007AFF"/>
+            <SolidColorBrush x:Key="LightBackgroundBrush" Color="#F2F2F7"/>
+            <SolidColorBrush x:Key="LightSurfaceBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="LightTextBrush" Color="#000000"/>
+            <SolidColorBrush x:Key="LightTextSecondaryBrush" Color="#6C6C70"/>
+            <SolidColorBrush x:Key="LightUserMessageBrush" Color="#007AFF"/>
+            <SolidColorBrush x:Key="LightAssistantMessageBrush" Color="#E9E9EB"/>
+            
+            <!-- AMOLED Theme Colors -->
+            <SolidColorBrush x:Key="AmoledPrimaryBrush" Color="#00E5FF"/>
+            <SolidColorBrush x:Key="AmoledBackgroundBrush" Color="#000000"/>
+            <SolidColorBrush x:Key="AmoledSurfaceBrush" Color="#0A0A0A"/>
+            <SolidColorBrush x:Key="AmoledTextBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="AmoledTextSecondaryBrush" Color="#AAAAAA"/>
+            <SolidColorBrush x:Key="AmoledUserMessageBrush" Color="#00E5FF"/>
+            <SolidColorBrush x:Key="AmoledAssistantMessageBrush" Color="#1A1A1A"/>
+        </ResourceDictionary>
+    </Application.Resources>
+    
+    <Application.Styles>
+        <FluentTheme />
+        
+        <!-- ============================================ -->
+        <!-- DARK THEME STYLES -->
+        <!-- ============================================ -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Dark]">
+            <Style Selector="^ Border.sidebar-liquid-glass">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#35FFFFFF" Offset="0"/>
+                        <GradientStop Color="#18FFFFFF" Offset="0.25"/>
+                        <GradientStop Color="#22FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#15FFFFFF" Offset="0.75"/>
+                        <GradientStop Color="#28FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+                <Setter Property="BorderBrush">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Color="#70FFFFFF" Offset="0"/>
+                        <GradientStop Color="#25FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#60FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+            
+            <Style Selector="^ Border.main-liquid-glass">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#28FFFFFF" Offset="0"/>
+                        <GradientStop Color="#12FFFFFF" Offset="0.25"/>
+                        <GradientStop Color="#1AFFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#10FFFFFF" Offset="0.75"/>
+                        <GradientStop Color="#25FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+            
+            <Style Selector="^ TextBlock.theme-text">
+                <Setter Property="Foreground" Value="{DynamicResource DarkTextBrush}"/>
+            </Style>
+        </Style>
+        
+        <!-- ============================================ -->
+        <!-- LIGHT THEME STYLES -->
+        <!-- ============================================ -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Light]">
+            <Style Selector="^ Border.sidebar-liquid-glass">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#F5FFFFFF" Offset="0"/>
+                        <GradientStop Color="#E8FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#F0FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+                <Setter Property="BorderBrush">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Color="#E0000000" Offset="0"/>
+                        <GradientStop Color="#20000000" Offset="0.5"/>
+                        <GradientStop Color="#D0000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+                <Setter Property="Effect">
+                    <DropShadowEffect Color="#000000" BlurRadius="60" OffsetX="-8" OffsetY="0" Opacity="0.15"/>
+                </Setter>
+            </Style>
+            
+            <Style Selector="^ Border.main-liquid-glass">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#FAFFFFFF" Offset="0"/>
+                        <GradientStop Color="#F0FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#F5FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+                <Setter Property="Effect">
+                    <DropShadowEffect Color="#000000" BlurRadius="60" OffsetX="8" OffsetY="0" Opacity="0.15"/>
+                </Setter>
+            </Style>
+            
+            <Style Selector="^ TextBlock.theme-text">
+                <Setter Property="Foreground" Value="{DynamicResource LightTextBrush}"/>
+            </Style>
+            
+            <Style Selector="^ Button.sidebar-button-liquid">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#15000000" Offset="0"/>
+                        <GradientStop Color="#08000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+                <Setter Property="BorderBrush" Value="#25000000"/>
+            </Style>
+            
+            <Style Selector="^ Button.sidebar-button-liquid:pointerover">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#30000000" Offset="0"/>
+                        <GradientStop Color="#20000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+                <Setter Property="Effect">
+                    <DropShadowEffect Color="#007AFF" BlurRadius="35" OffsetX="0" OffsetY="0" Opacity="0.5"/>
+                </Setter>
+            </Style>
+        </Style>
+        
+        <!-- ============================================ -->
+        <!-- AMOLED THEME STYLES (Pure Black) -->
+        <!-- ============================================ -->
+        <Style Selector=":is(Window).amoled-theme">
+            <Style Selector="^ Border.sidebar-liquid-glass">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#20FFFFFF" Offset="0"/>
+                        <GradientStop Color="#10FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#18FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+                <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+            </Style>
+            
+            <Style Selector="^ Border.main-liquid-glass">
+                <Setter Property="Background">
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#15FFFFFF" Offset="0"/>
+                        <GradientStop Color="#08FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#12FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter>
+            </Style>
+            
+            <Style Selector="^ TextBlock.theme-text">
+                <Setter Property="Foreground" Value="{DynamicResource AmoledTextBrush}"/>
+            </Style>
+        </Style>
+        
+        <!-- ============================================ -->
+        <!-- APPLE-STYLE MESSAGE BUBBLES -->
+        <!-- ============================================ -->
+        
+        <!-- User Message Bubble (Sent) - Dark Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-user">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#D56C63FF" Offset="0"/>
+                    <GradientStop Color="#B55A52E5" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="CornerRadius" Value="20,20,4,20"/>
+            <Setter Property="Padding" Value="16,10,16,10"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="MaxWidth" Value="520"/>
+            <Setter Property="Margin" Value="60,4,0,4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="20" OffsetX="0" OffsetY="3" Opacity="0.4"/>
+            </Setter>
+        </Style>
+        
+        <!-- Assistant Message Bubble (Received) - Dark Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-assistant">
+            <Setter Property="Background" Value="#2C2C3E"/>
+            <Setter Property="CornerRadius" Value="20,20,20,4"/>
+            <Setter Property="Padding" Value="16,10,16,10"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="MaxWidth" Value="520"/>
+            <Setter Property="Margin" Value="0,4,60,4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#000000" BlurRadius="15" OffsetX="0" OffsetY="3" Opacity="0.3"/>
+            </Setter>
+        </Style>
+        
+        <!-- User Message Bubble - Light Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-user">
+            <Setter Property="Background" Value="#007AFF"/>
+            <Setter Property="CornerRadius" Value="20,20,4,20"/>
+            <Setter Property="Padding" Value="16,10,16,10"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="MaxWidth" Value="520"/>
+            <Setter Property="Margin" Value="60,4,0,4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#007AFF" BlurRadius="15" OffsetX="0" OffsetY="2" Opacity="0.25"/>
+            </Setter>
+        </Style>
+        
+        <!-- Assistant Message Bubble - Light Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-assistant">
+            <Setter Property="Background" Value="#E9E9EB"/>
+            <Setter Property="CornerRadius" Value="20,20,20,4"/>
+            <Setter Property="Padding" Value="16,10,16,10"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="MaxWidth" Value="520"/>
+            <Setter Property="Margin" Value="0,4,60,4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#000000" BlurRadius="10" OffsetX="0" OffsetY="2" Opacity="0.08"/>
+            </Setter>
+        </Style>
+        
+        <!-- User Message Bubble - AMOLED Theme -->
+        <Style Selector=":is(Window).amoled-theme Border.message-user">
+            <Setter Property="Background" Value="#00E5FF"/>
+            <Setter Property="CornerRadius" Value="20,20,4,20"/>
+            <Setter Property="Padding" Value="16,10,16,10"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="MaxWidth" Value="520"/>
+            <Setter Property="Margin" Value="60,4,0,4"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#00E5FF" BlurRadius="25" OffsetX="0" OffsetY="0" Opacity="0.6"/>
+            </Setter>
+        </Style>
+        
+        <!-- Assistant Message Bubble - AMOLED Theme -->
+        <Style Selector=":is(Window).amoled-theme Border.message-assistant">
+            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="CornerRadius" Value="20,20,20,4"/>
+            <Setter Property="Padding" Value="16,10,16,10"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="MaxWidth" Value="520"/>
+            <Setter Property="Margin" Value="0,4,60,4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
+        </Style>
+        
+        <!-- ============================================ -->
+        <!-- MESSAGE TEXT STYLES -->
+        <!-- ============================================ -->
+        
+        <!-- User Message Text - Dark Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-user TextBlock.message-content">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="LineHeight" Value="22"/>
+        </Style>
+        
+        <!-- Assistant Message Text - Dark Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-assistant TextBlock.message-content">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="LineHeight" Value="22"/>
+            <Setter Property="Opacity" Value="0.95"/>
+        </Style>
+        
+        <!-- User Message Text - Light Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-user TextBlock.message-content">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="LineHeight" Value="22"/>
+        </Style>
+        
+        <!-- Assistant Message Text - Light Theme -->
+        <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-assistant TextBlock.message-content">
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="LineHeight" Value="22"/>
+        </Style>
+        
+        <!-- User Message Text - AMOLED Theme -->
+        <Style Selector=":is(Window).amoled-theme Border.message-user TextBlock.message-content">
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="LineHeight" Value="22"/>
+        </Style>
+        
+        <!-- Assistant Message Text - AMOLED Theme -->
+        <Style Selector=":is(Window).amoled-theme Border.message-assistant TextBlock.message-content">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="LineHeight" Value="22"/>
+        </Style>
+        
+        <!-- Timestamp Styles -->
+        <Style Selector="TextBlock.message-timestamp">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Opacity" Value="0.5"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        
+        <!-- ============================================ -->
+        <!-- BASE COMPONENT STYLES -->
+        <!-- ============================================ -->
+        
+        <Style Selector="Border.sidebar-liquid-glass">
+            <Setter Property="CornerRadius" Value="32,32,32,32"/>
+            <Setter Property="BorderThickness" Value="1,1,1,1"/>
+            <Setter Property="BorderBrush" Value="#607C6CFF"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.6" Easing="CubicEaseInOut"/>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.6" Easing="CubicEaseInOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Border.main-liquid-glass">
+            <Setter Property="CornerRadius" Value="32,32,32,32"/>
+            <Setter Property="BorderThickness" Value="1,1,1,1"/>
+            <Setter Property="BorderBrush" Value="#607C6CFF"/>
+            <Setter Property="ClipToBounds" Value="False"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.6" Easing="CubicEaseInOut"/>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.6" Easing="CubicEaseInOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <!-- SIDEBAR BUTTON BASE -->
+        <Style Selector="Button.sidebar-button-liquid">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#10FFFFFF" Offset="0"/>
+                    <GradientStop Color="#05FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#18FFFFFF"/>
+            <Setter Property="Padding" Value="20,18"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate TargetType="Button">
+                    <Border Name="PART_Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="22"
+                            ClipToBounds="False">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.45" Easing="CubicEaseOut"/>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.45" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.35" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.sidebar-button-liquid:pointerover">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#38FFFFFF" Offset="0"/>
+                    <GradientStop Color="#25FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#48FFFFFF"/>
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="35" OffsetX="0" OffsetY="0" Opacity="0.6"/>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.sidebar-button-liquid:pressed">
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#FFFFFFFF"
+                            BlurRadius="20"
+                            OffsetX="0"
+                            OffsetY="0"
+                            Opacity="1"/>
+        </Setter>
+        <Setter Property="Opacity" Value="0.85"/>
+        </Style>
+        
+        <!-- <Style Selector="Button.sidebar-button-liquid.active">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#B56C63FF" Offset="0"/>
+                    <GradientStop Color="#955A52E5" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#D08078FF"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="45" OffsetX="0" OffsetY="6" Opacity="0.85"/>
+            </Setter>
+        </Style> -->
+        
+        <!-- Continue with other component styles... -->
+        <Style Selector="Button.quick-select-liquid">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#28FFFFFF" Offset="0"/>
+                    <GradientStop Color="#1AFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#35FFFFFF"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Inter, SF Pro Display"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="22,12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="24"
+                            ClipToBounds="False">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.quick-select-liquid:pointerover">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#48FFFFFF" Offset="0"/>
+                    <GradientStop Color="#35FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="30" OffsetX="0" OffsetY="5" Opacity="0.7"/>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.search-button-liquid">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+            <GradientStop Color="#40A49BFF" Offset="0"/>
+            <GradientStop Color="#20FFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+        </Setter>
+
+        <Setter Property="BorderBrush">
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#70FFFFFF" Offset="0"/>
+            <GradientStop Color="#20FFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="BorderThickness" Value="1"/>
+
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Opacity" Value="0.9"/>
+
+        <Setter Property="Foreground" Value="#F9FFFFFF"/>
+        <Setter Property="FontFamily" Value="Segoe UI, Inter, SF Pro Display"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+
+        <Setter Property="Effect">
+            <DropShadowEffect Color="#A0A49BFF"
+                            BlurRadius="22"
+                            OffsetX="0"
+                            OffsetY="0"
+                            Opacity="0.6"/>
+        </Setter>
+
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+        <Setter Property="RenderTransform">
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </Setter>
+
+        <Setter Property="Transitions">
+            <Transitions>
+            <BrushTransition Property="Background" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+            <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+            </Transitions>
+        </Setter>
+        </Style>
+
+        <!-- Hover state -->
+        <Style Selector="Button.search-button-liquid:pointerover">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+            <GradientStop Color="#60B7AEFF" Offset="0"/>
+            <GradientStop Color="#30FFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="Effect">
+            <DropShadowEffect Color="#C0A49BFF"
+                            BlurRadius="28"
+                            OffsetX="0"
+                            OffsetY="0"
+                            Opacity="0.5"/>
+        </Setter>
+        <Setter Property="RenderTransform">
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </Setter>
+        </Style>
+
+        <!-- Pressed state -->
+        <Style Selector="Button.search-button-liquid:pressed">
+        <Setter Property="RenderTransform">
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </Setter>
+        <Setter Property="Effect">
+            <DropShadowEffect Color="#FFFFFFFF"
+                            BlurRadius="20"
+                            OffsetX="0"
+                            OffsetY="0"
+                            Opacity="1"/>
+        </Setter>
+        <Setter Property="Opacity" Value="0.85"/>
+
+        </Style>
+
+        
+        <Style Selector="TextBox.search-input-liquid">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#28FFFFFF" Offset="0"/>
+                    <GradientStop Color="#1AFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#35FFFFFF"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Inter, SF Pro Display"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="CaretBrush" Value="#6C63FF"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="TextBox.search-input-liquid:focus">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#40FFFFFF" Offset="0"/>
+                    <GradientStop Color="#2AFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#6C63FF"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="40" OffsetX="0" OffsetY="5" Opacity="0.6"/>
+            </Setter>
+        </Style>
+        
+        <!-- Action Button Styles -->
+        <Style Selector="Button.action-button-liquid, Button.voice-toggle-liquid">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#28FFFFFF" Offset="0"/>
+                    <GradientStop Color="#1AFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#35FFFFFF"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="CornerRadius" Value="28"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.action-button-liquid:pointerover, Button.voice-toggle-liquid:pointerover">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#48FFFFFF" Offset="0"/>
+                    <GradientStop Color="#35FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="35" OffsetX="0" OffsetY="5" Opacity="0.7"/>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.action-button-liquid:pressed, Button.voice-toggle-liquid:pressed">
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+            </Setter>
+        </Style>
+        
+        <!-- Status Bar -->
+        <Style Selector="Border.status-liquid-glass">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#35FFFFFF" Offset="0"/>
+                    <GradientStop Color="#25FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="CornerRadius" Value="30"/>
+            <Setter Property="Padding" Value="26,16"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#45FFFFFF"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#000000" BlurRadius="45" OffsetX="0" OffsetY="10" Opacity="0.55"/>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Border.status-dot-liquid">
+            <Setter Property="Width" Value="11"/>
+            <Setter Property="Height" Value="11"/>
+            <Setter Property="Background" Value="#00FF88"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#00FF88" BlurRadius="18" OffsetX="0" OffsetY="0" Opacity="1"/>
+            </Setter>
+        </Style>
+        
+        <!-- Settings Window Styles -->
+        <Style Selector="Border.settings-section">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#30FFFFFF" Offset="0"/>
+                    <GradientStop Color="#1AFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+            <Setter Property="CornerRadius" Value="26"/>
+            <Setter Property="Padding" Value="32,28"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#000000" BlurRadius="30" OffsetX="0" OffsetY="5" Opacity="0.35"/>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.settings-button, Button.settings-button-secondary">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#28FFFFFF" Offset="0"/>
+                    <GradientStop Color="#1AFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#35FFFFFF"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Inter, SF Pro Display"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="28,14"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.settings-button:pointerover, Button.settings-button-secondary:pointerover">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#48FFFFFF" Offset="0"/>
+                    <GradientStop Color="#35FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Setter>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="30" OffsetX="0" OffsetY="5" Opacity="0.6"/>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.settings-button-primary">
+            <Setter Property="Background">
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#D56C63FF" Offset="0"/>
+                    <GradientStop Color="#B55A52E5" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Inter, SF Pro Display"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="32,14"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Effect">
+                <DropShadowEffect Color="#6C63FF" BlurRadius="30" OffsetX="0" OffsetY="5" Opacity="0.65"/>
+            </Setter>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.35" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button.settings-button-primary:pointerover">
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Setter>
+        </Style>
+        
+<!-- Glassy ComboBox -->
+<Style Selector="ComboBox.settings-combo">
+    <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#40FFFFFF" Offset="0"/>
+            <GradientStop Color="#10FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+    </Setter>
+    <Setter Property="BorderBrush" Value="#4DFFFFFF"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="12"/>
+    <Setter Property="Padding" Value="12,10"/>
+    <Setter Property="Foreground" Value="#FFFFFFFF"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="FontFamily" Value="Inter"/>
+    <Setter Property="FontSize" Value="14"/>
+
+    <Setter Property="Template">
+        <ControlTemplate>
+            <Grid>
+                <!-- Combo display -->
+                <Border CornerRadius="{TemplateBinding CornerRadius}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}">
+                    <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                        <ContentPresenter Grid.Column="0"
+                                          Content="{TemplateBinding SelectedItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                        <Path Grid.Column="1" Data="M 0 0 L 8 6 L 16 0 Z"
+                              Width="16" Height="8"
+                              Fill="#C0FFFFFF"
+                              Margin="12,0,0,0"
+                              VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <Popup Name="PART_Popup"
+       IsOpen="{TemplateBinding IsDropDownOpen}"
+       Placement="Bottom"
+       Margin="0,8,0,0">
+    <Border CornerRadius="14"
+            BorderThickness="1"
+            BorderBrush="#40FFFFFF"
+            Padding="4"
+            Background="#20FFFFFF">
+        <!-- Apply blur only behind this Border -->
+        <Border.Effect>
+            <BlurEffect Radius="20"/>
+        </Border.Effect>
+
+        <ScrollViewer MaxHeight="280">
+            <ItemsPresenter Margin="6"/>
+        </ScrollViewer>
+    </Border>
+</Popup>
+
+
+            </Grid>
+        </ControlTemplate>
+    </Setter>
+</Style>
+
+
+    </Application.Styles>
+</Application>
