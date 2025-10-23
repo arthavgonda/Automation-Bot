@@ -487,4 +487,4 @@ For support, feature requests, or bug reports:
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: January 2025
+**Last Updated**: October, 2025
