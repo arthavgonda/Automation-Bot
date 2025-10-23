@@ -421,7 +421,6 @@ brightness up/down          - Adjust screen brightness
 | Browser Automation | ✅ | ✅ | ✅ |
 | File Management | ✅ | ✅ | ✅ |
 | Package Manager | Chocolatey | Homebrew | apt/dnf/etc |
-| App Store | Microsoft Store | Mac App Store | GNOME/Snap |
 | Frontend UI | ✅ | ✅ | ✅ |
 
 ## ⚠️ Known Limitations
