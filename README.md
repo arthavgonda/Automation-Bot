@@ -421,7 +421,6 @@ brightness up/down          - Adjust screen brightness
 | Browser Automation | ✅ | ✅ | ✅ |
 | File Management | ✅ | ✅ | ✅ |
 | Package Manager | Chocolatey | Homebrew | apt/dnf/etc |
-| App Store | Microsoft Store | Mac App Store | GNOME/Snap |
 | Frontend UI | ✅ | ✅ | ✅ |
 
 ## ⚠️ Known Limitations
@@ -487,4 +486,4 @@ For support, feature requests, or bug reports:
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: January 2025
+**Last Updated**: October, 2025
