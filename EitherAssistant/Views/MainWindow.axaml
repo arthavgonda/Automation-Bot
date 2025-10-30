@@ -24,7 +24,7 @@
     </Window.Resources>
 
     <Panel>
-        <!-- DYNAMIC GRADIENT BACKGROUND -->
+        
         <Panel.Background>
             <RadialGradientBrush Center="0.5,0.5" RadiusX="1.3" RadiusY="1.3">
                 <GradientStop Color="#030305" Offset="0"/>
@@ -36,7 +36,7 @@
             </RadialGradientBrush>
         </Panel.Background>
         
-        <!-- AMBIENT LIGHTING SYSTEM -->
+        
         <Canvas ClipToBounds="False" IsHitTestVisible="False">
             <Ellipse Width="700" Height="700" 
                      Canvas.Left="-250" Canvas.Top="-250"
@@ -78,14 +78,14 @@
             </Ellipse>
         </Canvas>
         
-        <!-- MAIN CONTENT GRID -->
+        
         <Grid Margin="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="250"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
-            <!-- SIDEBAR -->
+            
             <Border Grid.Column="0" 
                     Classes="sidebar-liquid-glass"
                     Margin="28,28,14,28">
@@ -96,7 +96,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <!-- LOGO HEADER -->
+                    
                     <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center" Margin="0,0,0,25">
                         <TextBlock Text="EITHER" 
                                    FontFamily="Segoe UI, Inter, SF Pro Display" 
@@ -131,7 +131,7 @@
                         </Border>
                     </StackPanel>
                     
-                    <!-- NAVIGATION -->
+                    
                     <ScrollViewer Grid.Row="1" 
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
@@ -139,7 +139,7 @@
                                   HorizontalAlignment="Center">
                         <StackPanel Spacing="40">
                             
-                            <!-- MAIN SECTION -->
+                            
                             <StackPanel Spacing="18">
                                 <TextBlock Text="MAIN" 
                                            FontFamily="Segoe UI, Inter, SF Pro Display" 
@@ -220,7 +220,7 @@
                                 </Button>
                             </StackPanel>
                             
-                            <!-- CATEGORIES SECTION -->
+                            
                             <StackPanel Spacing="18">
                                 <TextBlock Text="CATEGORIES" 
                                            FontFamily="Segoe UI, Inter, SF Pro Display" 
@@ -301,7 +301,7 @@
                 </Grid>
             </Border>
             
-            <!-- MAIN CONTENT PANEL -->
+            
             <Border Grid.Column="1" 
                     Classes="main-liquid-glass"
                     Margin="14,28,28,28">
@@ -313,7 +313,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
-                    <!-- HEADER SECTION -->
+                    
                     <StackPanel Grid.Row="0" Spacing="32">
                         <TextBlock Text="Voice Assistant" 
                                    FontFamily="Segoe UI, Inter, SF Pro Display" 
@@ -336,7 +336,7 @@
                                    MaxWidth="700"
                                    HorizontalAlignment="Left"/>
                         
-                        <!-- SEARCH BAR -->
+                        
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18" Margin="0,15,0,0">
                             <TextBox Grid.Column="0"
                                     Classes="search-input-liquid"
@@ -372,7 +372,7 @@
                             </Button>
                         </Grid>
                         
-                        <!-- QUICK SELECT PILLS -->
+                        
                         <StackPanel Spacing="20" Margin="0,15,0,0">
                             <StackPanel Orientation="Horizontal" Spacing="14">
                                 <TextBlock Text="Quick select:" 
@@ -407,9 +407,9 @@
                         <ItemsControl ItemsSource="{Binding Messages}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!-- Apple-Style Message Container -->
+                                    
                                     <Grid Margin="0,6,0,6">
-                                        <!-- User Message (Right-aligned) -->
+                                        
                                         <Border Classes="message-user"
                                                 IsVisible="{Binding IsUser}">
                                             <StackPanel Spacing="6">
@@ -423,7 +423,7 @@
                                             </StackPanel>
                                         </Border>
                                         
-                                        <!-- Assistant Message (Left-aligned) -->
+                                        
                                         <Border Classes="message-assistant"
                                                 IsVisible="{Binding !IsUser}">
                                             <StackPanel Spacing="6">
@@ -442,7 +442,7 @@
                         </ItemsControl>
                     </ScrollViewer>
                     
-                    <!-- ACTION BUTTONS FOOTER -->
+                    
                     <StackPanel Grid.Row="2" 
                                 Orientation="Horizontal" 
                                 Spacing="16" 
@@ -489,13 +489,13 @@
             </Border>
         </Grid>
         
-        <!-- FLOATING STATUS BAR -->
+        
         <Border Classes="status-liquid-glass"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 Margin="0,0,0,36">
             <StackPanel Orientation="Horizontal" Spacing="16">
-                <!-- Connection Status Dot - Online -->
+                
                 <Border Width="11" Height="11" CornerRadius="6" VerticalAlignment="Center"
                         IsVisible="{Binding ConnectionStatus, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Online}">
                     <Border.Background>
@@ -506,7 +506,7 @@
                     </Border.Effect>
                 </Border>
                 
-                <!-- Connection Status Dot - Offline -->
+                
                 <Border Width="11" Height="11" CornerRadius="6" VerticalAlignment="Center"
                         IsVisible="{Binding ConnectionStatus, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Offline}">
                     <Border.Background>
@@ -517,7 +517,7 @@
                     </Border.Effect>
                 </Border>
                 
-                <!-- Connection Status Dot - Connecting -->
+                
                 <Border Width="11" Height="11" CornerRadius="6" VerticalAlignment="Center"
                         IsVisible="{Binding ConnectionStatus, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Connecting...}">
                     <Border.Background>
@@ -528,7 +528,7 @@
                     </Border.Effect>
                 </Border>
                 
-                <!-- Connection Status Text -->
+                
                 <TextBlock Text="{Binding ConnectionStatus}"
                            FontFamily="Segoe UI, Inter, SF Pro Display" 
                            FontSize="12"
@@ -540,7 +540,7 @@
                 
                 <Border Width="1" Height="20" Background="#40FFFFFF" VerticalAlignment="Center" Margin="4,0"/>
                 
-                <!-- Status Text -->
+                
                 <TextBlock Text="{Binding StatusText}" 
                            FontFamily="Segoe UI, Inter, SF Pro Display" 
                            FontSize="13"

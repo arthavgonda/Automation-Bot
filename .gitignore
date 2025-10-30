@@ -506,9 +506,11 @@ dmypy.json
 
 # Vosk models (large files)
 STT/vosk-model-*/
-!STT/vosk-model-en-us-0.22/
+Python/STT/vosk-model-*/
 STT/*.zip
 STT/*.tar.gz
+Python/STT/*.zip
+Python/STT/*.tar.gz
 
 # Whisper models
 *.whisper

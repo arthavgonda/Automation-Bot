@@ -16,7 +16,7 @@ public class SettingsService
         var appFolder = Path.Combine(appDataPath, "EitherAssistant");
         Directory.CreateDirectory(appFolder);
         _settingsFilePath = Path.Combine(appFolder, "settings.json");
-        
+
         _settings = new SettingsData();
     }
 

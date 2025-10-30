@@ -26,15 +26,15 @@ public class MainWindowViewModel : ViewModelBase
     {
         Messages = new ObservableCollection<MessageModel>();
         _settingsService = new SettingsService();
-        
+
         _pythonService = new PythonBackendService();
         _pythonService.OutputReceived += OnPythonOutputReceived;
         _pythonService.ErrorReceived += OnPythonErrorReceived;
         _pythonService.VoiceTranscriptionReceived += OnVoiceTranscriptionReceived;
         _pythonService.CommandResultReceived += OnCommandResultReceived;
         _pythonService.ConnectionStatusChanged += OnConnectionStatusChanged;
-        
-        // Add welcome message
+
+
         Messages.Add(new MessageModel
         {
             Sender = "Assistant",
@@ -47,8 +47,8 @@ public class MainWindowViewModel : ViewModelBase
             IsUser = false,
             Timestamp = DateTime.Now.ToString("HH:mm")
         });
-        
-        // Initialize commands
+
+
         SendMessageCommand = new RelayCommand(async () => await SendMessageAsync());
         ToggleVoiceCommand = new RelayCommand(async () => await ToggleVoiceAsync());
         OpenSettingsCommand = new RelayCommand(OpenSettings);
@@ -56,7 +56,7 @@ public class MainWindowViewModel : ViewModelBase
         CloseCommand = new RelayCommand(CloseWindow);
         ClearChatCommand = new RelayCommand(ClearChat);
         ExportChatCommand = new RelayCommand(ExportChat);
-        
+
         NavigateToVoiceAssistantCommand = new RelayCommand(NavigateToVoiceAssistant);
         NavigateToFavoritesCommand = new RelayCommand(NavigateToFavorites);
         NavigateToMyCommandsCommand = new RelayCommand(NavigateToMyCommands);
@@ -65,7 +65,7 @@ public class MainWindowViewModel : ViewModelBase
         NavigateToWebCommand = new RelayCommand(NavigateToWeb);
         NavigateToFilesCommand = new RelayCommand(NavigateToFiles);
         NavigateToSearchCommand = new RelayCommand(NavigateToSearch);
-        
+
         QuickSelectSystemCommand = new RelayCommand(QuickSelectSystem);
         QuickSelectWebCommand = new RelayCommand(QuickSelectWeb);
         QuickSelectFilesCommand = new RelayCommand(QuickSelectFiles);
@@ -74,18 +74,18 @@ public class MainWindowViewModel : ViewModelBase
         QuickSelectAppsCommand = new RelayCommand(QuickSelectApps);
         QuickSelectSettingsCommand = new RelayCommand(QuickSelectSettings);
         QuickSelectHelpCommand = new RelayCommand(QuickSelectHelp);
-        
+
         ChangeThemeCommand = new RelayCommand<string>(ChangeTheme);
-        
-        // Load settings and apply theme
+
+
         _ = LoadSettingsAsync();
-        
-        // Initialize Python backend
+
+
         _ = InitializePythonBackendAsync();
     }
 
     public ObservableCollection<MessageModel> Messages { get; }
-    
+
     public string InputText
     {
         get => _inputText;
@@ -126,7 +126,7 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _currentTheme, value);
     }
 
-    // Commands
+
     public ICommand SendMessageCommand { get; }
     public ICommand ToggleVoiceCommand { get; }
     public ICommand OpenSettingsCommand { get; }
@@ -134,7 +134,7 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand CloseCommand { get; }
     public ICommand ClearChatCommand { get; }
     public ICommand ExportChatCommand { get; }
-    
+
     public ICommand NavigateToVoiceAssistantCommand { get; }
     public ICommand NavigateToFavoritesCommand { get; }
     public ICommand NavigateToMyCommandsCommand { get; }
@@ -143,7 +143,7 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand NavigateToWebCommand { get; }
     public ICommand NavigateToFilesCommand { get; }
     public ICommand NavigateToSearchCommand { get; }
-    
+
     public ICommand QuickSelectSystemCommand { get; }
     public ICommand QuickSelectWebCommand { get; }
     public ICommand QuickSelectFilesCommand { get; }
@@ -152,10 +152,10 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand QuickSelectAppsCommand { get; }
     public ICommand QuickSelectSettingsCommand { get; }
     public ICommand QuickSelectHelpCommand { get; }
-    
+
     public ICommand ChangeThemeCommand { get; }
 
-    // Events
+
     public event EventHandler? MinimizeRequested;
     public event EventHandler? CloseRequested;
 
@@ -169,17 +169,17 @@ public class MainWindowViewModel : ViewModelBase
         try
         {
             await _settingsService.LoadSettingsAsync();
-            
-            // Apply theme from settings
+
+
             var themeStr = _settingsService.Settings.SelectedTheme;
             CurrentTheme = themeStr switch
             {
                 "Light" => ThemeVariant.Light,
                 "Dark" => ThemeVariant.Dark,
-                "AMOLED" => ThemeVariant.Dark, // We'll handle AMOLED specially
+                "AMOLED" => ThemeVariant.Dark,
                 _ => ThemeVariant.Dark
             };
-            
+
             StatusText = $"Theme: {themeStr} loaded";
         }
         catch (Exception ex)
@@ -200,12 +200,12 @@ public class MainWindowViewModel : ViewModelBase
             _ => ThemeVariant.Dark
         };
 
-        // Save to settings
+
         _settingsService.Settings.SelectedTheme = theme;
         _ = _settingsService.SaveSettingsAsync();
 
         StatusText = $"Theme changed to {theme}";
-        
+
         Messages.Add(new MessageModel
         {
             Sender = "System",
@@ -229,13 +229,13 @@ public class MainWindowViewModel : ViewModelBase
             IsUser = true,
             Timestamp = DateTime.Now.ToString("HH:mm")
         };
-        
+
         Messages.Add(userMessage);
 
         var userCommand = InputText;
         InputText = string.Empty;
 
-        // Check for theme change command
+
         var lower = userCommand.ToLower();
         if (lower.Contains("change theme") || lower.Contains("switch theme"))
         {
@@ -248,7 +248,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        // Try to use Python backend first
+
         try
         {
             if (_pythonService != null && _pythonService.IsConnected)
@@ -262,7 +262,7 @@ public class MainWindowViewModel : ViewModelBase
             }
             else if (_pythonService != null && !_pythonService.IsConnected)
             {
-                // Backend not connected, show offline message
+
                 Messages.Add(new MessageModel
                 {
                     Sender = "System",
@@ -278,7 +278,7 @@ public class MainWindowViewModel : ViewModelBase
             StatusText = $"Error: {ex.Message}";
         }
 
-        // Fallback to simulated response
+
         await SimulateAssistantResponseAsync(userCommand);
     }
 
@@ -288,15 +288,15 @@ public class MainWindowViewModel : ViewModelBase
         {
             StatusText = "Initializing Python backend...";
             ConnectionStatus = "Connecting...";
-            
+
             var success = await _pythonService.StartAsync();
             if (success)
             {
                 ConnectionStatus = "Online";
                 StatusText = "Python backend connected";
-                
+
                 await _pythonService.EnableBrowserAsync();
-                
+
                 var systemInfo = await _pythonService.GetSystemInfoAsync();
                 if (systemInfo != null)
                 {
@@ -313,7 +313,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 ConnectionStatus = "Offline";
                 StatusText = "Failed to connect to Python backend";
-                
+
                 Messages.Add(new MessageModel
                 {
                     Sender = "System",
@@ -343,8 +343,8 @@ public class MainWindowViewModel : ViewModelBase
         Dispatcher.UIThread.Post(() =>
         {
             StatusText = error;
-            
-            // Show error message in chat
+
+
             Messages.Add(new MessageModel
             {
                 Sender = "System",
@@ -354,16 +354,16 @@ public class MainWindowViewModel : ViewModelBase
             });
         });
     }
-    
+
     private void OnConnectionStatusChanged(object? sender, bool isConnected)
     {
         Dispatcher.UIThread.Post(() =>
         {
             ConnectionStatus = isConnected ? "Online" : "Offline";
-            
+
             if (!isConnected && Messages.Count > 0)
             {
-                // Notify user of disconnection
+
                 Messages.Add(new MessageModel
                 {
                     Sender = "System",
@@ -387,7 +387,7 @@ public class MainWindowViewModel : ViewModelBase
                 IsUser = true,
                 Timestamp = DateTime.Now.ToString("HH:mm")
             });
-            
+
             _ = ProcessVoiceCommandAsync(transcription);
         });
     }
@@ -403,7 +403,7 @@ public class MainWindowViewModel : ViewModelBase
                 IsUser = false,
                 Timestamp = DateTime.Now.ToString("HH:mm")
             });
-            
+
             StatusText = "Ready";
         });
     }
@@ -435,7 +435,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         StatusText = "Analyzing command...";
         await Task.Delay(300);
-        
+
         StatusText = "Processing request...";
         await Task.Delay(500);
 
@@ -463,7 +463,7 @@ public class MainWindowViewModel : ViewModelBase
             var fileName = ExtractParameter(lower, "create file");
             return $"File creation command received.\n\nCreating file: {fileName}";
         }
-        
+
         if (lower.Contains("search for") || lower.Contains("google"))
         {
             var query = ExtractParameter(lower, new[] { "search for", "google" });
@@ -513,10 +513,10 @@ public class MainWindowViewModel : ViewModelBase
             StatusText = "Voice recognition unavailable - backend offline";
             return;
         }
-        
+
         IsVoiceActive = !IsVoiceActive;
         IsListening = IsVoiceActive;
-        
+
         if (IsVoiceActive)
         {
             Messages.Add(new MessageModel
@@ -526,7 +526,7 @@ public class MainWindowViewModel : ViewModelBase
                 IsUser = false,
                 Timestamp = DateTime.Now.ToString("HH:mm")
             });
-            
+
             try
             {
                 var success = await _pythonService.StartVoiceRecognitionAsync();
@@ -552,7 +552,7 @@ public class MainWindowViewModel : ViewModelBase
                 IsUser = false,
                 Timestamp = DateTime.Now.ToString("HH:mm")
             });
-            
+
             try
             {
                 await _pythonService.StopVoiceRecognitionAsync();
@@ -572,12 +572,12 @@ public class MainWindowViewModel : ViewModelBase
             {
                 DataContext = new SettingsWindowViewModel(_settingsService)
             };
-            
-            var mainWindow = Avalonia.Application.Current?.ApplicationLifetime is 
-                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop 
-                ? desktop.MainWindow 
+
+            var mainWindow = Avalonia.Application.Current?.ApplicationLifetime is
+                Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+                ? desktop.MainWindow
                 : null;
-                
+
             if (mainWindow != null)
             {
                 settingsWindow.Show(mainWindow);
@@ -586,7 +586,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 settingsWindow.Show();
             }
-            
+
             StatusText = "Settings window opened";
         }
         catch (Exception ex)
@@ -631,11 +631,11 @@ public class MainWindowViewModel : ViewModelBase
         try
         {
             var fileName = $"chat_export_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
-            var content = string.Join("\n\n", Messages.Select(m => 
+            var content = string.Join("\n\n", Messages.Select(m =>
                 $"[{m.Timestamp}] {m.Sender}: {m.Content}"));
-            
+
             System.IO.File.WriteAllText(fileName, content);
-            
+
             Messages.Add(new MessageModel
             {
                 Sender = "System",
@@ -643,7 +643,7 @@ public class MainWindowViewModel : ViewModelBase
                 IsUser = false,
                 Timestamp = DateTime.Now.ToString("HH:mm")
             });
-            
+
             StatusText = "Chat exported successfully";
         }
         catch (Exception ex)
@@ -662,7 +662,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         var index = command.IndexOf(prefix, StringComparison.OrdinalIgnoreCase);
         if (index == -1) return "unknown";
-        
+
         var start = index + prefix.Length;
         var result = command.Substring(start).Trim();
         return string.IsNullOrEmpty(result) ? "unknown" : result;
@@ -683,8 +683,8 @@ public class MainWindowViewModel : ViewModelBase
         }
         return "unknown";
     }
-    
-    // Navigation methods
+
+
     private void NavigateToVoiceAssistant() => StatusText = "Voice Assistant activated";
     private void NavigateToFavorites() => StatusText = "Favorites opened";
     private void NavigateToMyCommands() => StatusText = "My Commands opened";
@@ -693,8 +693,8 @@ public class MainWindowViewModel : ViewModelBase
     private void NavigateToWeb() { InputText = "search for "; StatusText = "Web commands"; }
     private void NavigateToFiles() { InputText = "list files"; StatusText = "File commands"; }
     private void NavigateToSearch() { InputText = "search for "; StatusText = "Search commands"; }
-    
-    // Quick select methods
+
+
     private void QuickSelectSystem() { InputText = "system info"; }
     private void QuickSelectWeb() { InputText = "search for "; }
     private void QuickSelectFiles() { InputText = "list files"; }
@@ -702,8 +702,8 @@ public class MainWindowViewModel : ViewModelBase
     private void QuickSelectVoice() => _ = ToggleVoiceAsync();
     private void QuickSelectApps() { InputText = "download "; }
     private void QuickSelectSettings() => OpenSettings();
-    private void QuickSelectHelp() 
-    { 
+    private void QuickSelectHelp()
+    {
         Messages.Add(new MessageModel
         {
             Sender = "System",

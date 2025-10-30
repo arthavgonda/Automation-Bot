@@ -24,9 +24,9 @@ public class ViewModelBase : INotifyPropertyChanged
     }
 }
 
-/// <summary>
-/// Simple RelayCommand implementation to avoid ReactiveUI threading issues
-/// </summary>
+
+
+
 public class RelayCommand : ICommand
 {
     private readonly Action _execute;
@@ -46,8 +46,8 @@ public class RelayCommand : ICommand
 
     public event EventHandler? CanExecuteChanged
     {
-        add { /* Simple implementation without CommandManager */ }
-        remove { /* Simple implementation without CommandManager */ }
+        add {  }
+        remove {  }
     }
 
     public bool CanExecute(object? parameter)
@@ -61,9 +61,9 @@ public class RelayCommand : ICommand
     }
 }
 
-/// <summary>
-/// Generic RelayCommand implementation for parameterized commands
-/// </summary>
+
+
+
 public class RelayCommand<T> : ICommand
 {
     private readonly Action<T?> _execute;
@@ -77,8 +77,8 @@ public class RelayCommand<T> : ICommand
 
     public event EventHandler? CanExecuteChanged
     {
-        add { /* Simple implementation without CommandManager */ }
-        remove { /* Simple implementation without CommandManager */ }
+        add {  }
+        remove {  }
     }
 
     public bool CanExecute(object? parameter)

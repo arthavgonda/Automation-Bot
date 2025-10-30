@@ -20,4 +20,3 @@ public class StringEqualsConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
-

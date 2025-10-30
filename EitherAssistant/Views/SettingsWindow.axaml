@@ -20,7 +20,7 @@
     </Design.DataContext>
 
     <Panel>
-        <!-- Dynamic Background -->
+        
         <Panel.Background>
             <RadialGradientBrush Center="0.5,0.5" RadiusX="1.2" RadiusY="1.2">
                 <GradientStop Color="#050508" Offset="0"/>
@@ -30,7 +30,7 @@
             </RadialGradientBrush>
         </Panel.Background>
         
-        <!-- Ambient Glow -->
+        
         <Canvas ClipToBounds="False">
             <Ellipse Width="450" Height="450" 
                      Canvas.Left="135" Canvas.Top="-180"
@@ -44,7 +44,7 @@
             </Ellipse>
         </Canvas>
 
-        <!-- Main Content -->
+        
         <Grid Margin="40">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -52,7 +52,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
+            
             <Grid Grid.Row="0" Margin="0,0,0,36">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -82,14 +82,14 @@
                 </Button>
             </Grid>
 
-            <!-- Settings Content -->
+            
             <ScrollViewer Grid.Row="1" 
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
                           Padding="0,0,12,0">
                 <StackPanel Spacing="28">
                     
-                    <!-- General Settings -->
+                    
                     <Border Classes="settings-section">
                         <StackPanel Spacing="26">
                             <TextBlock Text="General Settings"
@@ -99,7 +99,7 @@
                                        Foreground="#FFFFFF"
                                        LetterSpacing="0.3"/>
                             
-                            <!-- Theme -->
+                            
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Theme"
                                            FontFamily="Inter"
@@ -126,7 +126,7 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <!-- Language -->
+                            
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Language"
                                            FontFamily="Inter"
@@ -154,7 +154,7 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <!-- Auto-start -->
+                            
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <CheckBox Classes="settings-checkbox"
                                           IsChecked="{Binding AutoStartEnabled}"
@@ -170,7 +170,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Voice Settings -->
+                    
                     <Border Classes="settings-section">
                         <StackPanel Spacing="26">
                             <TextBlock Text="Voice &amp; Audio"
@@ -180,7 +180,7 @@
                                        Foreground="#FFFFFF"
                                        LetterSpacing="0.3"/>
                             
-                            <!-- Voice Input -->
+                            
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <CheckBox Classes="settings-checkbox"
                                           IsChecked="{Binding VoiceInputEnabled}"
@@ -194,7 +194,7 @@
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <!-- Voice Sensitivity -->
+                            
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0"
@@ -223,7 +223,7 @@
                                         Height="28"/>
                             </StackPanel>
 
-                            <!-- Audio Device -->
+                            
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Audio Input Device"
                                            FontFamily="Inter"
@@ -261,7 +261,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Advanced Settings -->
+                    
                     <Border Classes="settings-section">
                         <StackPanel Spacing="26">
                             <TextBlock Text="Advanced"
@@ -271,7 +271,7 @@
                                        Foreground="#FFFFFF"
                                        LetterSpacing="0.3"/>
                             
-                            <!-- Python Backend -->
+                            
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Python Backend"
                                            FontFamily="Inter"
@@ -303,7 +303,7 @@
                                 </Grid>
                             </StackPanel>
 
-                            <!-- Debug Mode -->
+                            
                             <StackPanel Orientation="Horizontal" Spacing="16">
                                 <CheckBox Classes="settings-checkbox"
                                           IsChecked="{Binding DebugModeEnabled}"
@@ -317,7 +317,7 @@
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <!-- Log Level -->
+                            
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Log Level"
                                            FontFamily="Inter"
@@ -347,7 +347,7 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Footer -->
+            
             <StackPanel Grid.Row="2" 
                         Orientation="Horizontal" 
                         HorizontalAlignment="Right" 

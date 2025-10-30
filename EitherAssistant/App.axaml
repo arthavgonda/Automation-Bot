@@ -4,9 +4,9 @@
              RequestedThemeVariant="Dark">
     
     <Application.Resources>
-        <!-- Theme Color Definitions -->
+        
         <ResourceDictionary>
-            <!-- Dark Theme Colors -->
+            
             <SolidColorBrush x:Key="DarkPrimaryBrush" Color="#6C63FF"/>
             <SolidColorBrush x:Key="DarkBackgroundBrush" Color="#050508"/>
             <SolidColorBrush x:Key="DarkSurfaceBrush" Color="#1A1A2E"/>
@@ -15,7 +15,7 @@
             <SolidColorBrush x:Key="DarkUserMessageBrush" Color="#6C63FF"/>
             <SolidColorBrush x:Key="DarkAssistantMessageBrush" Color="#2A2A3E"/>
             
-            <!-- Light Theme Colors -->
+            
             <SolidColorBrush x:Key="LightPrimaryBrush" Color="#007AFF"/>
             <SolidColorBrush x:Key="LightBackgroundBrush" Color="#F2F2F7"/>
             <SolidColorBrush x:Key="LightSurfaceBrush" Color="#FFFFFF"/>
@@ -24,7 +24,7 @@
             <SolidColorBrush x:Key="LightUserMessageBrush" Color="#007AFF"/>
             <SolidColorBrush x:Key="LightAssistantMessageBrush" Color="#E9E9EB"/>
             
-            <!-- AMOLED Theme Colors -->
+            
             <SolidColorBrush x:Key="AmoledPrimaryBrush" Color="#00E5FF"/>
             <SolidColorBrush x:Key="AmoledBackgroundBrush" Color="#000000"/>
             <SolidColorBrush x:Key="AmoledSurfaceBrush" Color="#0A0A0A"/>
@@ -38,9 +38,9 @@
     <Application.Styles>
         <FluentTheme />
         
-        <!-- ============================================ -->
-        <!-- DARK THEME STYLES -->
-        <!-- ============================================ -->
+        
+        
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Dark]">
             <Style Selector="^ Border.sidebar-liquid-glass">
                 <Setter Property="Background">
@@ -78,9 +78,9 @@
             </Style>
         </Style>
         
-        <!-- ============================================ -->
-        <!-- LIGHT THEME STYLES -->
-        <!-- ============================================ -->
+        
+        
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Light]">
             <Style Selector="^ Border.sidebar-liquid-glass">
                 <Setter Property="Background">
@@ -142,9 +142,9 @@
             </Style>
         </Style>
         
-        <!-- ============================================ -->
-        <!-- AMOLED THEME STYLES (Pure Black) -->
-        <!-- ============================================ -->
+        
+        
+        
         <Style Selector=":is(Window).amoled-theme">
             <Style Selector="^ Border.sidebar-liquid-glass">
                 <Setter Property="Background">
@@ -172,11 +172,11 @@
             </Style>
         </Style>
         
-        <!-- ============================================ -->
-        <!-- APPLE-STYLE MESSAGE BUBBLES -->
-        <!-- ============================================ -->
         
-        <!-- User Message Bubble (Sent) - Dark Theme -->
+        
+        
+        
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-user">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -195,7 +195,7 @@
             </Setter>
         </Style>
         
-        <!-- Assistant Message Bubble (Received) - Dark Theme -->
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-assistant">
             <Setter Property="Background" Value="#2C2C3E"/>
             <Setter Property="CornerRadius" Value="20,20,20,4"/>
@@ -209,7 +209,7 @@
             </Setter>
         </Style>
         
-        <!-- User Message Bubble - Light Theme -->
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-user">
             <Setter Property="Background" Value="#007AFF"/>
             <Setter Property="CornerRadius" Value="20,20,4,20"/>
@@ -223,7 +223,7 @@
             </Setter>
         </Style>
         
-        <!-- Assistant Message Bubble - Light Theme -->
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-assistant">
             <Setter Property="Background" Value="#E9E9EB"/>
             <Setter Property="CornerRadius" Value="20,20,20,4"/>
@@ -237,7 +237,7 @@
             </Setter>
         </Style>
         
-        <!-- User Message Bubble - AMOLED Theme -->
+        
         <Style Selector=":is(Window).amoled-theme Border.message-user">
             <Setter Property="Background" Value="#00E5FF"/>
             <Setter Property="CornerRadius" Value="20,20,4,20"/>
@@ -250,7 +250,7 @@
             </Setter>
         </Style>
         
-        <!-- Assistant Message Bubble - AMOLED Theme -->
+        
         <Style Selector=":is(Window).amoled-theme Border.message-assistant">
             <Setter Property="Background" Value="#1A1A1A"/>
             <Setter Property="CornerRadius" Value="20,20,20,4"/>
@@ -262,11 +262,11 @@
             <Setter Property="BorderBrush" Value="#333333"/>
         </Style>
         
-        <!-- ============================================ -->
-        <!-- MESSAGE TEXT STYLES -->
-        <!-- ============================================ -->
         
-        <!-- User Message Text - Dark Theme -->
+        
+        
+        
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-user TextBlock.message-content">
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontWeight" Value="Normal"/>
@@ -274,7 +274,7 @@
             <Setter Property="LineHeight" Value="22"/>
         </Style>
         
-        <!-- Assistant Message Text - Dark Theme -->
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Dark] Border.message-assistant TextBlock.message-content">
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontWeight" Value="Normal"/>
@@ -283,7 +283,7 @@
             <Setter Property="Opacity" Value="0.95"/>
         </Style>
         
-        <!-- User Message Text - Light Theme -->
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-user TextBlock.message-content">
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontWeight" Value="Medium"/>
@@ -291,7 +291,7 @@
             <Setter Property="LineHeight" Value="22"/>
         </Style>
         
-        <!-- Assistant Message Text - Light Theme -->
+        
         <Style Selector=":is(Window)[RequestedThemeVariant=Light] Border.message-assistant TextBlock.message-content">
             <Setter Property="Foreground" Value="#000000"/>
             <Setter Property="FontWeight" Value="Normal"/>
@@ -299,7 +299,7 @@
             <Setter Property="LineHeight" Value="22"/>
         </Style>
         
-        <!-- User Message Text - AMOLED Theme -->
+        
         <Style Selector=":is(Window).amoled-theme Border.message-user TextBlock.message-content">
             <Setter Property="Foreground" Value="#000000"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -307,7 +307,7 @@
             <Setter Property="LineHeight" Value="22"/>
         </Style>
         
-        <!-- Assistant Message Text - AMOLED Theme -->
+        
         <Style Selector=":is(Window).amoled-theme Border.message-assistant TextBlock.message-content">
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontWeight" Value="Normal"/>
@@ -315,7 +315,7 @@
             <Setter Property="LineHeight" Value="22"/>
         </Style>
         
-        <!-- Timestamp Styles -->
+        
         <Style Selector="TextBlock.message-timestamp">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="Medium"/>
@@ -323,9 +323,9 @@
             <Setter Property="Margin" Value="0,4,0,0"/>
         </Style>
         
-        <!-- ============================================ -->
-        <!-- BASE COMPONENT STYLES -->
-        <!-- ============================================ -->
+        
+        
+        
         
         <Style Selector="Border.sidebar-liquid-glass">
             <Setter Property="CornerRadius" Value="32,32,32,32"/>
@@ -353,7 +353,7 @@
             </Setter>
         </Style>
         
-        <!-- SIDEBAR BUTTON BASE -->
+        
         <Style Selector="Button.sidebar-button-liquid">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -422,20 +422,9 @@
         <Setter Property="Opacity" Value="0.85"/>
         </Style>
         
-        <!-- <Style Selector="Button.sidebar-button-liquid.active">
-            <Setter Property="Background">
-                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                    <GradientStop Color="#B56C63FF" Offset="0"/>
-                    <GradientStop Color="#955A52E5" Offset="1"/>
-                </LinearGradientBrush>
-            </Setter>
-            <Setter Property="BorderBrush" Value="#D08078FF"/>
-            <Setter Property="Effect">
-                <DropShadowEffect Color="#6C63FF" BlurRadius="45" OffsetX="0" OffsetY="6" Opacity="0.85"/>
-            </Setter>
-        </Style> -->
         
-        <!-- Continue with other component styles... -->
+        
+        
         <Style Selector="Button.quick-select-liquid">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -536,7 +525,7 @@
         </Setter>
         </Style>
 
-        <!-- Hover state -->
+        
         <Style Selector="Button.search-button-liquid:pointerover">
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -556,7 +545,7 @@
         </Setter>
         </Style>
 
-        <!-- Pressed state -->
+        
         <Style Selector="Button.search-button-liquid:pressed">
         <Setter Property="RenderTransform">
             <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -607,7 +596,7 @@
             </Setter>
         </Style>
         
-        <!-- Action Button Styles -->
+        
         <Style Selector="Button.action-button-liquid, Button.voice-toggle-liquid">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -649,7 +638,7 @@
             </Setter>
         </Style>
         
-        <!-- Status Bar -->
+        
         <Style Selector="Border.status-liquid-glass">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -677,7 +666,7 @@
             </Setter>
         </Style>
         
-        <!-- Settings Window Styles -->
+        
         <Style Selector="Border.settings-section">
             <Setter Property="Background">
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -765,7 +754,7 @@
             </Setter>
         </Style>
         
-<!-- Glassy ComboBox -->
+
 <Style Selector="ComboBox.settings-combo">
     <Setter Property="Background">
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -786,7 +775,7 @@
     <Setter Property="Template">
         <ControlTemplate>
             <Grid>
-                <!-- Combo display -->
+                
                 <Border CornerRadius="{TemplateBinding CornerRadius}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
@@ -815,7 +804,7 @@
             BorderBrush="#40FFFFFF"
             Padding="4"
             Background="#20FFFFFF">
-        <!-- Apply blur only behind this Border -->
+        
         <Border.Effect>
             <BlurEffect Radius="20"/>
         </Border.Effect>

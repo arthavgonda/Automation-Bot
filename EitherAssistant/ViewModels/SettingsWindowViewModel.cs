@@ -24,21 +24,21 @@ public class SettingsWindowViewModel : ViewModelBase
     public SettingsWindowViewModel(SettingsService? settingsService = null)
     {
         _settingsService = settingsService ?? new SettingsService();
-        
-        // Initialize commands
+
+
         CloseCommand = new RelayCommand(CloseWindow);
         SaveSettingsCommand = new RelayCommand(async () => await SaveSettingsAsync());
         ResetToDefaultsCommand = new RelayCommand(ResetToDefaults);
         RestartPythonBackendCommand = new RelayCommand(async () => await RestartPythonBackendAsync());
         RefreshAudioDevicesCommand = new RelayCommand(RefreshAudioDevices);
 
-        // Initialize collections
+
         AvailableThemes = new ObservableCollection<string> { "Dark", "Light", "AMOLED" };
         AvailableLanguages = new ObservableCollection<string> { "English", "Spanish", "French", "German", "Chinese", "Japanese" };
         AvailableAudioDevices = new ObservableCollection<string>();
         AvailableLogLevels = new ObservableCollection<string> { "Debug", "Info", "Warning", "Error" };
 
-        // Load settings and devices
+
         _ = InitializeAsync();
     }
 
@@ -49,7 +49,7 @@ public class SettingsWindowViewModel : ViewModelBase
         await CheckPythonBackendStatusAsync();
     }
 
-    // Properties
+
     public string SelectedTheme
     {
         get => _selectedTheme;
@@ -101,8 +101,8 @@ public class SettingsWindowViewModel : ViewModelBase
     public string PythonBackendStatus
     {
         get => _pythonBackendStatus;
-        set 
-        { 
+        set
+        {
             if (SetProperty(ref _pythonBackendStatus, value))
             {
                 OnPropertyChanged(nameof(PythonBackendStatusColor));
@@ -137,20 +137,20 @@ public class SettingsWindowViewModel : ViewModelBase
         set => SetProperty(ref _selectedLogLevel, value);
     }
 
-    // Collections
+
     public ObservableCollection<string> AvailableThemes { get; }
     public ObservableCollection<string> AvailableLanguages { get; }
     public ObservableCollection<string> AvailableAudioDevices { get; }
     public ObservableCollection<string> AvailableLogLevels { get; }
 
-    // Commands
+
     public ICommand CloseCommand { get; }
     public ICommand SaveSettingsCommand { get; }
     public ICommand ResetToDefaultsCommand { get; }
     public ICommand RestartPythonBackendCommand { get; }
     public ICommand RefreshAudioDevicesCommand { get; }
 
-    // Events
+
     public event EventHandler? CloseRequested;
 
     private void CloseWindow()
@@ -173,9 +173,9 @@ public class SettingsWindowViewModel : ViewModelBase
             _settingsService.Settings.LastSaved = DateTime.Now;
 
             await _settingsService.SaveSettingsAsync();
-            
+
             System.Diagnostics.Debug.WriteLine("Settings saved successfully");
-            
+
             await Task.Delay(500);
             CloseWindow();
         }
@@ -195,7 +195,7 @@ public class SettingsWindowViewModel : ViewModelBase
         SelectedAudioDevice = AvailableAudioDevices.FirstOrDefault() ?? "Default";
         DebugModeEnabled = false;
         SelectedLogLevel = "Info";
-        
+
         System.Diagnostics.Debug.WriteLine("Settings reset to defaults");
     }
 
@@ -204,11 +204,11 @@ public class SettingsWindowViewModel : ViewModelBase
         try
         {
             PythonBackendStatus = "Connecting";
-            
+
             await Task.Run(async () =>
             {
                 await Task.Delay(2000);
-                
+
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     PythonBackendStatus = "Connected";
@@ -228,11 +228,11 @@ public class SettingsWindowViewModel : ViewModelBase
         try
         {
             AvailableAudioDevices.Clear();
-            
+
             AvailableAudioDevices.Add("Default Microphone");
             AvailableAudioDevices.Add("USB Microphone");
             AvailableAudioDevices.Add("Built-in Microphone");
-            
+
             if (AvailableAudioDevices.Count > 0)
             {
                 if (!AvailableAudioDevices.Contains(SelectedAudioDevice))
@@ -240,7 +240,7 @@ public class SettingsWindowViewModel : ViewModelBase
                     SelectedAudioDevice = AvailableAudioDevices[0];
                 }
             }
-            
+
             System.Diagnostics.Debug.WriteLine($"Found {AvailableAudioDevices.Count} audio input device(s)");
         }
         catch (Exception ex)
@@ -257,7 +257,7 @@ public class SettingsWindowViewModel : ViewModelBase
         try
         {
             await _settingsService.LoadSettingsAsync();
-            
+
             SelectedTheme = _settingsService.Settings.SelectedTheme;
             SelectedLanguage = _settingsService.Settings.SelectedLanguage;
             AutoStartEnabled = _settingsService.Settings.AutoStartEnabled;
@@ -266,7 +266,7 @@ public class SettingsWindowViewModel : ViewModelBase
             SelectedAudioDevice = _settingsService.Settings.SelectedAudioDevice;
             DebugModeEnabled = _settingsService.Settings.DebugModeEnabled;
             SelectedLogLevel = _settingsService.Settings.SelectedLogLevel;
-            
+
             System.Diagnostics.Debug.WriteLine("Settings loaded successfully");
         }
         catch (Exception ex)
@@ -319,7 +319,7 @@ public class SettingsWindowViewModel : ViewModelBase
             {
                 var startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
                 var shortcutPath = System.IO.Path.Combine(startupPath, "EitherAssistant.lnk");
-                
+
                 if (enabled)
                 {
                     var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
