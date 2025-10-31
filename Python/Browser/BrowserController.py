@@ -12,6 +12,27 @@ class BrowserController:
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
+    
+    def _ensure_valid_window(self):
+        """Ensure we're on a valid window, switch if current is closed"""
+        try:
+            # Try to access current window
+            _ = self.driver.current_window_handle
+            return True
+        except:
+            # Current window is closed, try to switch to any available window
+            try:
+                handles = self.driver.window_handles
+                if handles:
+                    self.driver.switch_to.window(handles[0])
+                    print("⚠️  Previous window was closed. Switched to available window.")
+                    return True
+                else:
+                    print("❌ No browser windows available!")
+                    return False
+            except Exception as e:
+                print(f"❌ Cannot recover from closed window: {e}")
+                return False
     def click_first_link(self):
         try:
             print("🖱️  Clicking first link...")
@@ -331,3 +352,329 @@ class BrowserController:
         except Exception as e:
             print(f"✗ Play video failed: {e}")
             return False
+    
+    # ==================== TAB MANAGEMENT ====================
+    
+    def create_new_tab(self, url=None):
+        """Open a new tab, optionally with a URL"""
+        try:
+            # Ensure we're on a valid window first
+            if not self._ensure_valid_window():
+                return False
+            
+            print("📑 Creating new tab...")
+            # Get current handle to return to it
+            original_handle = self.driver.current_window_handle
+            original_handles = self.driver.window_handles
+            
+            # Open new tab
+            self.driver.execute_script("window.open('');")
+            time.sleep(0.5)
+            
+            # Switch to new tab
+            new_handles = self.driver.window_handles
+            new_tab = [h for h in new_handles if h not in original_handles][0]
+            self.driver.switch_to.window(new_tab)
+            
+            if url:
+                self.driver.get(url)
+                print(f"✓ New tab created and navigated to {url}")
+            else:
+                print("✓ New tab created!")
+            
+            # Switch back to original tab/window so driver stays valid
+            try:
+                self.driver.switch_to.window(original_handle)
+                print("   (Staying on original tab)")
+            except:
+                # Original might be closed, stay on new tab
+                pass
+            
+            return True
+        except Exception as e:
+            print(f"✗ Create new tab failed: {e}")
+            # Try to recover
+            self._ensure_valid_window()
+            return False
+    
+    def switch_to_tab(self, tab_index):
+        """Switch to a specific tab by index (1-based)"""
+        try:
+            handles = self.driver.window_handles
+            if 0 < tab_index <= len(handles):
+                self.driver.switch_to.window(handles[tab_index - 1])
+                print(f"✓ Switched to tab {tab_index}")
+                return True
+            else:
+                print(f"✗ Tab {tab_index} not found. Only {len(handles)} tabs open.")
+                return False
+        except Exception as e:
+            print(f"✗ Switch tab failed: {e}")
+            return False
+    
+    def switch_to_first_tab(self):
+        """Switch to the first tab"""
+        try:
+            print("📑 Switching to first tab...")
+            handles = self.driver.window_handles
+            if handles:
+                self.driver.switch_to.window(handles[0])
+                print("✓ Switched to first tab!")
+                return True
+            return False
+        except Exception as e:
+            print(f"✗ Switch to first tab failed: {e}")
+            return False
+    
+    def switch_to_last_tab(self):
+        """Switch to the last tab"""
+        try:
+            print("📑 Switching to last tab...")
+            handles = self.driver.window_handles
+            if handles:
+                self.driver.switch_to.window(handles[-1])
+                print("✓ Switched to last tab!")
+                return True
+            return False
+        except Exception as e:
+            print(f"✗ Switch to last tab failed: {e}")
+            return False
+    
+    def switch_to_next_tab(self):
+        """Switch to the next tab (wraps around)"""
+        try:
+            print("📑 Switching to next tab...")
+            handles = self.driver.window_handles
+            current_handle = self.driver.current_window_handle
+            current_index = handles.index(current_handle)
+            next_index = (current_index + 1) % len(handles)
+            self.driver.switch_to.window(handles[next_index])
+            print(f"✓ Switched to next tab (tab {next_index + 1})")
+            return True
+        except Exception as e:
+            print(f"✗ Switch to next tab failed: {e}")
+            return False
+    
+    def switch_to_previous_tab(self):
+        """Switch to the previous tab (wraps around)"""
+        try:
+            print("📑 Switching to previous tab...")
+            handles = self.driver.window_handles
+            current_handle = self.driver.current_window_handle
+            current_index = handles.index(current_handle)
+            prev_index = (current_index - 1) % len(handles)
+            self.driver.switch_to.window(handles[prev_index])
+            print(f"✓ Switched to previous tab (tab {prev_index + 1})")
+            return True
+        except Exception as e:
+            print(f"✗ Switch to previous tab failed: {e}")
+            return False
+    
+    def close_current_tab(self):
+        """Close the current tab and switch to the next one"""
+        try:
+            print("❌ Closing current tab...")
+            handles = self.driver.window_handles
+            if len(handles) > 1:
+                self.driver.close()
+                # Switch to the first available tab
+                remaining_handles = self.driver.window_handles
+                self.driver.switch_to.window(remaining_handles[0])
+                print("✓ Tab closed!")
+                return True
+            else:
+                print("✗ Cannot close the last tab")
+                return False
+        except Exception as e:
+            print(f"✗ Close tab failed: {e}")
+            return False
+    
+    def close_other_tabs(self):
+        """Close all tabs except the current one"""
+        try:
+            print("❌ Closing all other tabs...")
+            current_handle = self.driver.current_window_handle
+            all_handles = self.driver.window_handles
+            
+            for handle in all_handles:
+                if handle != current_handle:
+                    self.driver.switch_to.window(handle)
+                    self.driver.close()
+            
+            self.driver.switch_to.window(current_handle)
+            print("✓ All other tabs closed!")
+            return True
+        except Exception as e:
+            print(f"✗ Close other tabs failed: {e}")
+            return False
+    
+    def list_all_tabs(self):
+        """List all open tabs with their titles"""
+        try:
+            print("\n📑 Open Tabs:")
+            print("=" * 70)
+            handles = self.driver.window_handles
+            current_handle = self.driver.current_window_handle
+            
+            for i, handle in enumerate(handles, 1):
+                self.driver.switch_to.window(handle)
+                title = self.driver.title or "(No title)"
+                current_marker = " ← Current" if handle == current_handle else ""
+                print(f"  {i}. {title}{current_marker}")
+            
+            self.driver.switch_to.window(current_handle)
+            print("=" * 70)
+            print(f"Total tabs: {len(handles)}\n")
+            return True
+        except Exception as e:
+            print(f"✗ List tabs failed: {e}")
+            return False
+    
+    # ==================== WINDOW MANAGEMENT ====================
+    
+    def create_new_window(self, url=None):
+        """Open a new browser window (Ctrl+N equivalent)"""
+        try:
+            # Ensure we're on a valid window first
+            if not self._ensure_valid_window():
+                return False
+            
+            print("🪟 Creating new window...")
+            # Get current window handle to return to it
+            original_handle = self.driver.current_window_handle
+            original_handles = self.driver.window_handles
+            
+            # Open new window
+            self.driver.execute_script("window.open('', '_blank', 'width=1200,height=800');")
+            time.sleep(0.5)
+            
+            # Switch to new window
+            new_handles = self.driver.window_handles
+            new_window = [h for h in new_handles if h not in original_handles][0]
+            self.driver.switch_to.window(new_window)
+            
+            if url:
+                self.driver.get(url)
+                print(f"✓ New window created and navigated to {url}")
+            else:
+                self.driver.get("about:blank")
+                print("✓ New window created!")
+            
+            # Switch back to original window so driver stays valid
+            try:
+                self.driver.switch_to.window(original_handle)
+                print("   (Staying on original window)")
+            except:
+                # Original window might be closed, stay on new window
+                pass
+            
+            return True
+        except Exception as e:
+            print(f"✗ Create new window failed: {e}")
+            # Try to recover
+            self._ensure_valid_window()
+            return False
+    
+    def create_incognito_window(self):
+        """Create a new incognito/private window (Note: Requires browser setup)"""
+        try:
+            print("🕵️  Creating incognito window...")
+            print("⚠️  Note: Incognito windows require special browser configuration")
+            print("    This will open a new regular window instead.")
+            # Selenium limitation: Can't directly create incognito windows
+            # The browser must be started in incognito mode initially
+            return self.create_new_window()
+        except Exception as e:
+            print(f"✗ Create incognito window failed: {e}")
+            return False
+    
+    def maximize_window(self):
+        """Maximize the current window"""
+        try:
+            print("📏 Maximizing window...")
+            self.driver.maximize_window()
+            print("✓ Window maximized!")
+            return True
+        except Exception as e:
+            print(f"✗ Maximize window failed: {e}")
+            return False
+    
+    def minimize_window(self):
+        """Minimize the current window"""
+        try:
+            print("📏 Minimizing window...")
+            self.driver.minimize_window()
+            print("✓ Window minimized!")
+            return True
+        except Exception as e:
+            print(f"✗ Minimize window failed: {e}")
+            return False
+    
+    def fullscreen_window(self):
+        """Set window to fullscreen (F11 equivalent)"""
+        try:
+            print("🖥️  Entering fullscreen...")
+            self.driver.fullscreen_window()
+            print("✓ Fullscreen mode activated!")
+            return True
+        except Exception as e:
+            print(f"✗ Fullscreen failed: {e}")
+            return False
+    
+    # ==================== NAVIGATION ====================
+    
+    def go_back(self):
+        """Navigate back in browser history"""
+        try:
+            print("⬅️  Going back...")
+            self.driver.back()
+            time.sleep(0.5)
+            print("✓ Navigated back!")
+            return True
+        except Exception as e:
+            print(f"✗ Go back failed: {e}")
+            return False
+    
+    def go_forward(self):
+        """Navigate forward in browser history"""
+        try:
+            print("➡️  Going forward...")
+            self.driver.forward()
+            time.sleep(0.5)
+            print("✓ Navigated forward!")
+            return True
+        except Exception as e:
+            print(f"✗ Go forward failed: {e}")
+            return False
+    
+    def refresh_page(self):
+        """Refresh/reload the current page"""
+        try:
+            print("🔄 Refreshing page...")
+            self.driver.refresh()
+            time.sleep(1)
+            print("✓ Page refreshed!")
+            return True
+        except Exception as e:
+            print(f"✗ Refresh failed: {e}")
+            return False
+    
+    def get_current_url(self):
+        """Get the current page URL"""
+        try:
+            url = self.driver.current_url
+            print(f"🔗 Current URL: {url}")
+            return url
+        except Exception as e:
+            print(f"✗ Get URL failed: {e}")
+            return None
+    
+    def get_page_title(self):
+        """Get the current page title"""
+        try:
+            title = self.driver.title
+            print(f"📄 Page title: {title}")
+            return title
+        except Exception as e:
+            print(f"✗ Get title failed: {e}")
+            return None

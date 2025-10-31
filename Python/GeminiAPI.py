@@ -105,10 +105,33 @@ Examples:
 • "go to youtube and play latest song" → {{"action": "play_media", "query": "latest song", "platform": "youtube"}}
 
 6️⃣ DOWNLOAD_APP - Download/Install applications
-Examples:
-• "download steam" → {{"action": "download_app", "app_name": "steam"}}
-• "install chrome" → {{"action": "download_app", "app_name": "chrome"}}
-• "download VLC for me" → {{"action": "download_app", "app_name": "VLC"}}
+🔥 CRITICAL: User can specify WHERE to download from!
+
+Source Options (in order of priority):
+A) EXPLICIT SOURCE SPECIFIED:
+• "download X from web" → {{"action": "download_app", "app_name": "X", "source": "web"}}
+• "download X from terminal" → {{"action": "download_app", "app_name": "X", "source": "terminal"}}
+• "install X from snap" → {{"action": "download_app", "app_name": "X", "source": "snap"}}
+• "install X from flatpak" → {{"action": "download_app", "app_name": "X", "source": "flatpak"}}
+• "download X from app store" → {{"action": "download_app", "app_name": "X", "source": "appstore"}}
+• "get X via snap store" → {{"action": "download_app", "app_name": "X", "source": "snap"}}
+• "install X via package manager" → {{"action": "download_app", "app_name": "X", "source": "terminal"}}
+
+B) NO SOURCE SPECIFIED (DEFAULT TO WEB):
+• "download steam" → {{"action": "download_app", "app_name": "steam", "source": "web"}}
+• "install chrome" → {{"action": "download_app", "app_name": "chrome", "source": "web"}}
+• "get discord" → {{"action": "download_app", "app_name": "discord", "source": "web"}}
+
+Source Keywords:
+• "web", "internet", "online", "website" → source: "web"
+• "terminal", "package manager", "apt", "dnf", "brew", "choco" → source: "terminal"
+• "snap", "snap store" → source: "snap"
+• "flatpak" → source: "flatpak"
+• "app store", "microsoft store", "mac app store", "gnome software" → source: "appstore"
+
+🔥 ALWAYS include "source" field in download_app actions!
+🔥 If user says "from [SOURCE]" or "via [SOURCE]", extract it!
+🔥 Default to "web" if no source is mentioned!
 
 7️⃣ DOWNLOAD_RESEARCH - Download research papers
 Examples:
@@ -120,7 +143,34 @@ Examples:
 Example: "list apps" → {{"action": "list_apps"}}
 
 9️⃣ BROWSER_CONTROL - Interactive browser commands
-Examples:
+
+📑 TAB MANAGEMENT:
+• "create new tab" or "open new tab" → {{"action": "browser_control", "command": "new_tab"}}
+• "new tab and open youtube" → {{"action": "browser_control", "command": "new_tab", "url": "youtube.com"}}
+• "switch to first tab" or "go to first tab" → {{"action": "browser_control", "command": "first_tab"}}
+• "switch to last tab" or "go to last tab" → {{"action": "browser_control", "command": "last_tab"}}
+• "go to next tab" or "next tab" → {{"action": "browser_control", "command": "next_tab"}}
+• "go to previous tab" or "previous tab" → {{"action": "browser_control", "command": "previous_tab"}}
+• "switch to tab 3" or "go to 3rd tab" → {{"action": "browser_control", "command": "switch_to_tab", "tab_index": 3}}
+• "close this tab" or "close current tab" → {{"action": "browser_control", "command": "close_tab"}}
+• "close other tabs" or "close all other tabs" → {{"action": "browser_control", "command": "close_other_tabs"}}
+• "list all tabs" or "show tabs" → {{"action": "browser_control", "command": "list_tabs"}}
+
+🪟 WINDOW MANAGEMENT:
+• "create new window" or "open new window" → {{"action": "browser_control", "command": "new_window"}}
+• "open incognito window" or "create private window" → {{"action": "browser_control", "command": "incognito_window"}}
+• "maximize window" → {{"action": "browser_control", "command": "maximize"}}
+• "minimize window" → {{"action": "browser_control", "command": "minimize"}}
+• "fullscreen" or "enter fullscreen" → {{"action": "browser_control", "command": "fullscreen"}}
+
+🧭 NAVIGATION:
+• "go back" or "back" → {{"action": "browser_control", "command": "go_back"}}
+• "go forward" or "forward" → {{"action": "browser_control", "command": "go_forward"}}
+• "refresh page" or "reload" → {{"action": "browser_control", "command": "refresh"}}
+• "what's the current url" → {{"action": "browser_control", "command": "get_url"}}
+• "what's the page title" → {{"action": "browser_control", "command": "get_title"}}
+
+🖱️ PAGE INTERACTION:
 • "what's on the page" or "show page content" → {{"action": "browser_control", "command": "show_page"}}
 • "click on the first link" → {{"action": "browser_control", "command": "click_first_link"}}
 • "click on YouTube" → {{"action": "browser_control", "command": "click_by_text", "text": "YouTube"}}
@@ -148,14 +198,25 @@ Rules:
 ✨ "click on the [NUMBER]" = browser_control with click_nth
 ✨ "scroll" = browser_control action  
 ✨ "volume up/down" = browser_control action
+✨ "new tab" or "create new tab" = browser_control with new_tab
+✨ "first tab" or "last tab" = browser_control with first_tab/last_tab
+✨ "next tab" or "previous tab" = browser_control with next_tab/previous_tab
+✨ "tab X" or "Xth tab" = browser_control with switch_to_tab
+✨ "close tab" = browser_control with close_tab
+✨ "new window" = browser_control with new_window
+✨ "incognito" or "private window" = browser_control with incognito_window
+✨ "go back" or "go forward" = browser_control with go_back/go_forward
+✨ "refresh" or "reload" = browser_control with refresh
 ✨ "play X" or "play first" (without "on page") = play_media action
 ✨ "play X on page" or "play video X" = browser_control with play_video
 ✨ "download research on X" or "fetch research papers" = download_research action
-✨ "download X" or "install X" (for apps) = download_app action
+✨ 🔥 "download/install X from/via [SOURCE]" = download_app with source field (CRITICAL!)
+✨ "download X" or "install X" (for apps) = download_app action with source: "web" (default)
 ✨ "open browser and search X" = web_search for X
 ✨ "open/go to [WEBSITE] and search X" = platform_search (WEBSITE can be ANY site!)
 ✨ "search X on [WEBSITE]" = platform_search
 ✨ Prefer action over conversation when unsure
+✨ 🔥 ALWAYS extract download source if mentioned: "from web", "from snap", "via terminal", etc.
 
 User Input: {cleaned_text}
 JSON Output:"""
@@ -247,13 +308,34 @@ JSON Output:"""
                 topic = topic.replace(remove, '')
             topic = topic.strip()
             return {"action": "download_research", "topic": topic, "max_papers": 5}
-        elif text_lower.startswith(('download ', 'install ')):
+        elif text_lower.startswith(('download ', 'install ', 'get ')):
             app_name = text_lower.split(None, 1)[1] if len(text_lower.split()) > 1 else text_lower
             app_name = app_name.replace('for me', '').strip()
+            
+            # Check for research download
             if 'research' in app_name or 'papers' in app_name:
                 topic = app_name.replace('research', '').replace('papers', '').replace('on', '').replace('about', '').strip()
                 return {"action": "download_research", "topic": topic, "max_papers": 5}
-            return {"action": "download_app", "app_name": app_name}
+            
+            # Detect download source
+            source = "web"  # default
+            source_patterns = [
+                (r'(?:from|via|through|using)\s+(?:the\s+)?(web|internet|online|website)', 'web'),
+                (r'(?:from|via|through|using)\s+(?:the\s+)?(terminal|package\s+manager|apt|dnf|brew|choco)', 'terminal'),
+                (r'(?:from|via|through|using)\s+(?:the\s+)?(snap(?:\s+store)?)', 'snap'),
+                (r'(?:from|via|through|using)\s+(?:the\s+)?(flatpak)', 'flatpak'),
+                (r'(?:from|via|through|using)\s+(?:the\s+)?(app\s+store|microsoft\s+store|mac\s+app\s+store|gnome\s+software)', 'appstore'),
+            ]
+            
+            for pattern, src in source_patterns:
+                match = re.search(pattern, app_name)
+                if match:
+                    source = src
+                    # Remove the source specification from app_name
+                    app_name = re.sub(pattern, '', app_name).strip()
+                    break
+            
+            return {"action": "download_app", "app_name": app_name, "source": source}
         elif text_lower.startswith(('go to ', 'goto ', 'open ', 'visit ')):
             target = text_lower.replace('go to ', '').replace('goto ', '').replace('open ', '').replace('visit ', '').strip()
             if 'and search' in target or 'and find' in target or 'and write' in target:
@@ -286,6 +368,60 @@ JSON Output:"""
             return {"action": "browser_control", "command": "volume_up"}
         elif 'volume down' in text_lower or 'decrease volume' in text_lower:
             return {"action": "browser_control", "command": "volume_down"}
+        
+        # Tab management
+        elif re.search(r'(create|open|new)\s+(?:a\s+)?(?:new\s+)?tab', text_lower):
+            url_match = re.search(r'(?:and\s+)?(?:open|go to)\s+(\w+(?:\.\w+)?)', text_lower)
+            if url_match:
+                url = url_match.group(1)
+                return {"action": "browser_control", "command": "new_tab", "url": url}
+            return {"action": "browser_control", "command": "new_tab"}
+        elif re.search(r'(switch to|go to|move to)\s+first\s+tab', text_lower):
+            return {"action": "browser_control", "command": "first_tab"}
+        elif re.search(r'(switch to|go to|move to)\s+last\s+tab', text_lower):
+            return {"action": "browser_control", "command": "last_tab"}
+        elif re.search(r'(switch to|go to|move to)\s+next\s+tab', text_lower) or 'next tab' in text_lower:
+            return {"action": "browser_control", "command": "next_tab"}
+        elif re.search(r'(switch to|go to|move to)\s+prev(?:ious)?\s+tab', text_lower) or 'previous tab' in text_lower:
+            return {"action": "browser_control", "command": "previous_tab"}
+        elif re.search(r'(switch to|go to|move to)\s+tab\s+(\d+)', text_lower):
+            match = re.search(r'(switch to|go to|move to)\s+tab\s+(\d+)', text_lower)
+            tab_index = int(match.group(2))
+            return {"action": "browser_control", "command": "switch_to_tab", "tab_index": tab_index}
+        elif re.search(r'(switch to|go to|move to)\s+(\d+)(?:st|nd|rd|th)\s+tab', text_lower):
+            match = re.search(r'(switch to|go to|move to)\s+(\d+)(?:st|nd|rd|th)\s+tab', text_lower)
+            tab_index = int(match.group(2))
+            return {"action": "browser_control", "command": "switch_to_tab", "tab_index": tab_index}
+        elif re.search(r'close\s+(?:this\s+|current\s+)?tab', text_lower):
+            return {"action": "browser_control", "command": "close_tab"}
+        elif re.search(r'close\s+(?:all\s+)?other\s+tabs', text_lower):
+            return {"action": "browser_control", "command": "close_other_tabs"}
+        elif re.search(r'(list|show)\s+(?:all\s+)?tabs', text_lower):
+            return {"action": "browser_control", "command": "list_tabs"}
+        
+        # Window management
+        elif re.search(r'(create|open|new)\s+(?:a\s+)?(?:new\s+)?window', text_lower):
+            return {"action": "browser_control", "command": "new_window"}
+        elif re.search(r'(create|open|new)\s+(?:an?\s+)?(?:incognito|private)\s+window', text_lower):
+            return {"action": "browser_control", "command": "incognito_window"}
+        elif 'maximize' in text_lower and 'window' in text_lower:
+            return {"action": "browser_control", "command": "maximize"}
+        elif 'minimize' in text_lower and 'window' in text_lower:
+            return {"action": "browser_control", "command": "minimize"}
+        elif 'fullscreen' in text_lower or 'full screen' in text_lower:
+            return {"action": "browser_control", "command": "fullscreen"}
+        
+        # Navigation
+        elif re.search(r'\bgo\s+back\b|\bback\b', text_lower) and 'go back' not in ['go to back', 'search go back']:
+            return {"action": "browser_control", "command": "go_back"}
+        elif re.search(r'\bgo\s+forward\b|\bforward\b', text_lower):
+            return {"action": "browser_control", "command": "go_forward"}
+        elif 'refresh' in text_lower or 'reload' in text_lower:
+            return {"action": "browser_control", "command": "refresh"}
+        elif re.search(r'(what\s+is|show|get|tell)\s+(the\s+)?current\s+url', text_lower):
+            return {"action": "browser_control", "command": "get_url"}
+        elif re.search(r'(what\s+is|show|get|tell)\s+(the\s+)?page\s+title', text_lower):
+            return {"action": "browser_control", "command": "get_title"}
         elif 'click' in text_lower and 'first' in text_lower:
             return {"action": "browser_control", "command": "click_first_link"}
         elif 'click' in text_lower or 'press' in text_lower or 'select' in text_lower:

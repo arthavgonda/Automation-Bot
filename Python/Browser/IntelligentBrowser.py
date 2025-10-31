@@ -27,6 +27,27 @@ class EnhancedIntelligentBrowser:
         self.browser_controller = BrowserController(driver)
         self.page_reader = PageReader(driver)
         self.whatsapp_open = False
+    
+    def _ensure_valid_window(self):
+        """Ensure we're on a valid window, switch if current is closed"""
+        try:
+            # Try to access current window
+            _ = self.driver.current_window_handle
+            return True
+        except:
+            # Current window is closed, try to switch to any available window
+            try:
+                handles = self.driver.window_handles
+                if handles:
+                    self.driver.switch_to.window(handles[0])
+                    print("⚠️  Previous window was closed. Switched to available window.")
+                    return True
+                else:
+                    print("❌ No browser windows available!")
+                    return False
+            except Exception as e:
+                print(f"❌ Cannot recover from closed window: {e}")
+                return False
     def parse_command(self, text):
         text = text.lower().strip()
         file_patterns = [
@@ -63,6 +84,8 @@ class EnhancedIntelligentBrowser:
             return {"action": "list_files", "target": directory}
         if re.search(r"^open\s+(?:the\s+)?app\s+store", text):
             return {"action": "open_app_store"}
+        # Enhanced download/install patterns with explicit source detection
+        # Priority 1: Terminal/Package Manager installation
         terminal_patterns = [
             (r"^terminal\s+install\s+(.+)", 1),
             (r"^package\s+install\s+(.+)", 1),
@@ -74,6 +97,52 @@ class EnhancedIntelligentBrowser:
             if match:
                 app_name = match.group(group).strip()
                 return {"action": "terminal_install", "item": app_name}
+        
+        # Priority 2: Snap Store installation
+        snap_patterns = [
+            (r"(?:install|download|get)\s+(.+?)\s+(?:via|through|by|using|from)\s+snap(?:\s+store)?", 1),
+            (r"snap\s+install\s+(.+)", 1),
+        ]
+        for pattern, group in snap_patterns:
+            match = re.search(pattern, text)
+            if match:
+                app_name = match.group(group).strip()
+                return {"action": "snap_install", "item": app_name}
+        
+        # Priority 3: Flatpak installation
+        flatpak_patterns = [
+            (r"(?:install|download|get)\s+(.+?)\s+(?:via|through|by|using|from)\s+flatpak", 1),
+            (r"flatpak\s+install\s+(.+)", 1),
+        ]
+        for pattern, group in flatpak_patterns:
+            match = re.search(pattern, text)
+            if match:
+                app_name = match.group(group).strip()
+                return {"action": "flatpak_install", "item": app_name}
+        
+        # Priority 4: App Store (Microsoft Store / Mac App Store / GNOME Software)
+        appstore_patterns = [
+            (r"(?:install|download|get)\s+(.+?)\s+(?:via|through|by|using|from)\s+(?:app\s+store|microsoft\s+store|mac\s+app\s+store|gnome\s+software)", 1),
+            (r"app\s+store\s+install\s+(.+)", 1),
+        ]
+        for pattern, group in appstore_patterns:
+            match = re.search(pattern, text)
+            if match:
+                app_name = match.group(group).strip()
+                return {"action": "appstore_install", "item": app_name}
+        
+        # Priority 5: Explicit web download
+        web_download_patterns = [
+            (r"(?:download|get|install)\s+(.+?)\s+(?:from|via)\s+(?:the\s+)?(?:web|internet|online|website)", 1),
+            (r"web\s+download\s+(.+)", 1),
+        ]
+        for pattern, group in web_download_patterns:
+            match = re.search(pattern, text)
+            if match:
+                app_name = match.group(group).strip()
+                return {"action": "web_download", "item": app_name}
+        
+        # Priority 6: Generic download/install (defaults to web download)
         download_patterns = [
             r"^download\s+(?:and\s+install\s+)?(.+)",
             r"^get\s+(.+)",
@@ -83,7 +152,8 @@ class EnhancedIntelligentBrowser:
             match = re.search(pattern, text)
             if match:
                 item = match.group(1).strip()
-                return {"action": "download", "item": item}
+                # Default to web download unless already captured above
+                return {"action": "web_download", "item": item}
         platform_search_patterns = [
             r"(?:search|khojo|dhundo|find|lookup)\s+(?:for\s+)?(.+?)\s+(?:on|in|par|me)\s+(\w+)",
             r"(?:open|go to|use)\s+(\w+)\s+(?:and|to)\s+(?:search|find|order|buy)\s+(?:for\s+)?(?:me\s+)?(?:a\s+)?(.+)",
@@ -164,9 +234,28 @@ class EnhancedIntelligentBrowser:
             self.system.open_app_store()
             return True
         elif action == "terminal_install":
+            print(f"📦 Installing via terminal/package manager: {command['item']}")
             self.system.install_app_terminal(command["item"])
             return True
+        elif action == "snap_install":
+            print(f"📦 Installing via Snap: {command['item']}")
+            self.install_via_snap(command["item"])
+            return True
+        elif action == "flatpak_install":
+            print(f"📦 Installing via Flatpak: {command['item']}")
+            self.install_via_flatpak(command["item"])
+            return True
+        elif action == "appstore_install":
+            print(f"🏪 Installing via App Store: {command['item']}")
+            self.install_via_appstore(command["item"])
+            return True
+        elif action == "web_download":
+            print(f"🌐 Downloading from web: {command['item']}")
+            self.download_and_install(command["item"])
+            return True
         elif action == "download":
+            # Legacy support - defaults to web download
+            print(f"🌐 Downloading from web (default): {command['item']}")
             self.download_and_install(command["item"])
             return True
         elif action == "search_google":
@@ -263,15 +352,15 @@ class EnhancedIntelligentBrowser:
             homepage = f'https://www.{platform_lower}.com'
             return self.open_website(homepage)
     def search_google(self, query):
+        # Ensure we have a valid window first
+        if not self._ensure_valid_window():
+            print("Browser window closed, cannot search")
+            return False
+        
         max_retries = 3
         for attempt in range(max_retries):
             try:
                 print(f"Searching for: {query} (attempt {attempt + 1}/{max_retries})")
-                try:
-                    self.driver.current_url
-                except:
-                    print("Browser window closed, cannot search")
-                    return False
                 self.driver.get("https://www.google.com")
                 time.sleep(1)
                 search_box = self.wait.until(
@@ -421,6 +510,11 @@ class EnhancedIntelligentBrowser:
             print(f"Error finding download button: {e}")
             return False
     def open_website(self, url):
+        # Ensure we have a valid window first
+        if not self._ensure_valid_window():
+            print("Browser window closed, cannot open website")
+            return False
+        
         common_sites = {
             'youtube': 'youtube.com',
             'google': 'google.com',
@@ -446,11 +540,6 @@ class EnhancedIntelligentBrowser:
         for attempt in range(max_retries):
             try:
                 print(f"Opening: {url} (attempt {attempt + 1}/{max_retries})")
-                try:
-                    self.driver.current_url
-                except:
-                    print("Browser window closed, cannot open website")
-                    return False
                 self.driver.get(url)
                 time.sleep(2)
                 try:
@@ -483,6 +572,138 @@ class EnhancedIntelligentBrowser:
         except Exception as e:
             print(f"Could not click first result: {e}")
             return False
+    def install_via_snap(self, app_name):
+        """Install application via Snap Store"""
+        try:
+            if self.platform_name != "Linux":
+                print(f"⚠️  Snap is primarily for Linux. Falling back to web download...")
+                return self.download_and_install(app_name)
+            
+            if not shutil.which("snap"):
+                print("❌ Snap not found on this system")
+                print("💡 Install snap: sudo apt install snapd")
+                print("🌐 Falling back to web download...")
+                return self.download_and_install(app_name)
+            
+            print(f"🔍 Checking if {app_name} is available in Snap Store...")
+            result = subprocess.run(['snap', 'info', app_name], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                print(f"✅ Found {app_name} in Snap Store!")
+                print(f"📦 Installing {app_name} via snap...")
+                # Run in terminal so user can see progress and enter password
+                subprocess.Popen(['x-terminal-emulator', '-e', 
+                                f'bash -c "sudo snap install {app_name}; echo; echo Press Enter to close...; read"'])
+                print(f"✓ Installation command launched in terminal")
+                return True
+            else:
+                print(f"❌ {app_name} not found in Snap Store")
+                print("🌐 Falling back to web download...")
+                return self.download_and_install(app_name)
+                
+        except Exception as e:
+            print(f"❌ Error with Snap installation: {e}")
+            print("🌐 Falling back to web download...")
+            return self.download_and_install(app_name)
+    
+    def install_via_flatpak(self, app_name):
+        """Install application via Flatpak"""
+        try:
+            if self.platform_name != "Linux":
+                print(f"⚠️  Flatpak is primarily for Linux. Falling back to web download...")
+                return self.download_and_install(app_name)
+            
+            if not shutil.which("flatpak"):
+                print("❌ Flatpak not found on this system")
+                print("💡 Install flatpak: sudo apt install flatpak")
+                print("🌐 Falling back to web download...")
+                return self.download_and_install(app_name)
+            
+            print(f"🔍 Searching for {app_name} in Flathub...")
+            result = subprocess.run(['flatpak', 'search', app_name], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.stdout and len(result.stdout.strip()) > 0:
+                print(f"✅ Found {app_name} in Flathub!")
+                # Try to extract the full app ID from search results
+                lines = result.stdout.strip().split('\n')
+                if len(lines) > 1:  # First line is header
+                    # Parse the first result - format: Name    Description    AppID    Version    Branch    Remotes
+                    parts = lines[1].split('\t')
+                    if len(parts) >= 3:
+                        app_id = parts[2].strip()
+                        print(f"📦 Installing {app_id} via flatpak...")
+                        subprocess.Popen(['x-terminal-emulator', '-e', 
+                                        f'bash -c "flatpak install -y flathub {app_id}; echo; echo Press Enter to close...; read"'])
+                        print(f"✓ Installation command launched in terminal")
+                        return True
+                
+                # Fallback: just use the app name
+                print(f"📦 Installing {app_name} via flatpak...")
+                subprocess.Popen(['x-terminal-emulator', '-e', 
+                                f'bash -c "flatpak install -y flathub {app_name}; echo; echo Press Enter to close...; read"'])
+                print(f"✓ Installation command launched in terminal")
+                return True
+            else:
+                print(f"❌ {app_name} not found in Flathub")
+                print("🌐 Falling back to web download...")
+                return self.download_and_install(app_name)
+                
+        except Exception as e:
+            print(f"❌ Error with Flatpak installation: {e}")
+            print("🌐 Falling back to web download...")
+            return self.download_and_install(app_name)
+    
+    def install_via_appstore(self, app_name):
+        """Install application via native App Store (Microsoft Store / Mac App Store / GNOME Software)"""
+        try:
+            if self.platform_name == "Windows":
+                print("🏪 Opening Microsoft Store...")
+                search_url = f"ms-windows-store://search/?query={app_name.replace(' ', '%20')}"
+                subprocess.Popen(['start', search_url], shell=True)
+                print(f"✓ Microsoft Store opened for: {app_name}")
+                print("💡 Please complete the installation in the store")
+                return True
+                
+            elif self.platform_name == "Darwin":
+                print("🏪 Opening Mac App Store...")
+                search_url = f"macappstore://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?media=software&term={app_name.replace(' ', '%20')}"
+                subprocess.Popen(['open', search_url])
+                print(f"✓ Mac App Store opened for: {app_name}")
+                print("💡 Please complete the installation in the store")
+                return True
+                
+            elif self.platform_name == "Linux":
+                # Try different Linux app stores
+                stores = [
+                    ("gnome-software", "GNOME Software"),
+                    ("snap-store", "Snap Store"),
+                    ("plasma-discover", "KDE Discover"),
+                ]
+                
+                for cmd, name in stores:
+                    if shutil.which(cmd):
+                        print(f"🏪 Opening {name}...")
+                        if cmd == "gnome-software":
+                            subprocess.Popen([cmd, '--search', app_name])
+                        else:
+                            subprocess.Popen([cmd])
+                        print(f"✓ {name} opened")
+                        print(f"💡 Search for '{app_name}' in the store and install")
+                        return True
+                
+                print("❌ No app store found on this Linux system")
+                print("🌐 Falling back to web download...")
+                return self.download_and_install(app_name)
+            
+            return False
+            
+        except Exception as e:
+            print(f"❌ Error opening app store: {e}")
+            print("🌐 Falling back to web download...")
+            return self.download_and_install(app_name)
+    
     def close(self):
         print("\nClosing browser...")
         self.driver.quit()

@@ -46,20 +46,50 @@ class CommandClassifier:
             r'\b(download|install)\s+(?:from|via)\s+',
         ]
         self.conversation_patterns = [
+            # Greetings
             r'^(hello|hi|hey|good morning|good evening|good night)\b',
             r'\b(how are you|what\'s up|how\'s it going|how do you do)',
             r'\b(namaste|namaskar|kaise ho|kya hal|sab theek|kaise hain)',
+            
+            # Identity questions
             r'\b(what (is|are) you|who are you|tell me about yourself)',
-            r'\b(can you help|are you able to|do you know how)',
             r'\b(tum kaun ho|aap kaun|batao apne bare|tell about yourself)',
-            r'\b(tell me (a|an|the))\s+(joke|story|fact|quote)',
-            r'^(joke|story|fact|quote|advice)\b',
-            r'\b(thank you|thanks|okay|ok|fine|sure|got it)',
-            r'\b(dhanyavad|theek hai|accha|shukriya|theek)',
+            
+            # Requests for help/entertainment
+            r'\b(can you help|are you able to|do you know how)',
             r'\b(help me|assist me|guide me|support)',
             r'\b(madad karo|help karo|batao kaise|sikha)',
+            r'\b(tell me (a|an|the))\s+(joke|story|fact|quote)',
+            r'^(joke|story|fact|quote|advice)\b',
             r'^(ek|one)\s+(joke|story|kahani)',
             r'\b(sunao|batao)\s+(?!weather|price|kya hai)',
+            
+            # Thanks and acknowledgments (EXPANDED)
+            r'\b(thank you|thanks|thank|thankyou|thx)',
+            r'\b(thank you for|thanks for|thank for)',
+            r'\b(dhanyavad|theek hai|accha|shukriya|theek)',
+            
+            # Confirmations and agreements
+            r'^(okay|ok|fine|sure|got it|alright|right|yes|no|nope|yep|yeah)\b',
+            r'\b(theek|sahi|haan|nahi|bilkul)',
+            
+            # Goodbyes and closings (NEW)
+            r'\b(goodbye|good bye|bye|see you|farewell|take care|catch you later)',
+            r'\b(bye bye|byebye|see ya|later|peace|adios)',
+            r'\b(alvida|khuda hafiz|phir milenge)',
+            
+            # Watching/viewing related phrases (NEW)
+            r'\b(thank(s)? for (watching|viewing|listening|your time))',
+            r'\b(thanks for (being here|joining|coming))',
+            r'^(watching|viewing|listening)$',
+            
+            # Apologies
+            r'\b(sorry|apologies|apologize|excuse me|pardon)',
+            r'\b(maaf|maafi|sorry)',
+            
+            # Exclamations and reactions
+            r'^(wow|cool|nice|great|awesome|amazing|excellent|perfect)\b',
+            r'^(wah|zabardast|badhiya|mast|shandar)\b',
         ]
     def classify(self, text):
         text = text.lower().strip()
@@ -75,8 +105,11 @@ class CommandClassifier:
             CommandType.CONVERSATION: conversation_score
         }
         max_score = max(scores.values())
+        
+        # Prefer conversation when uncertain (max_score < 1.0)
         if max_score < 1.0:
-            return CommandType.WEB, 0.5, "Ambiguous command, defaulting to web search"
+            return CommandType.CONVERSATION, 0.5, "Ambiguous input, defaulting to conversation"
+        
         command_type = max(scores, key=scores.get)
         confidence = min(max_score / 5.0, 1.0)
         reasoning = self._get_reasoning(text, command_type, scores)
@@ -116,46 +149,101 @@ class CommandClassifier:
         return score
     def _contextual_web_score(self, text):
         score = 0
+        
+        # Explicit search commands get high score
         if text.strip().lower().startswith(('search ', 'google ', 'find ', 'lookup ', 'look up ')):
             score += 10
         if re.search(r'\b(search|find|lookup|google)\s+(for|about|on)\s+', text):
             score += 8
+        
+        # Question words indicate information seeking
         question_words = ['what', 'who', 'when', 'where', 'why', 'how',
                          'kya', 'kaun', 'kab', 'kahan', 'kaise', 'kyun']
+        has_question_word = False
         for word in question_words:
             if word in text.split():
                 score += 1.5
+                has_question_word = True
+        
+        # Informational keywords
         info_words = ['information', 'details', 'about', 'regarding',
                      'jankari', 'bare mein', 'ke bare']
         for word in info_words:
             if word in text:
                 score += 1
+        
+        # URLs are clearly web-related
         if re.search(r'\.(com|org|net|in|co)', text):
             score += 3
+        
+        # Explicit web indicators
         web_indicators = ['google', 'search on internet', 'search online', 
                          'internet pe', 'web pe', 'online search',
                          'google karo', 'internet par']
         for indicator in web_indicators:
             if indicator in text:
                 score += 5
+        
+        # Penalize very short phrases without question words (likely conversation)
+        if len(text.split()) <= 2 and not has_question_word:
+            score -= 5
+        
+        # Conversational phrases should not be searches
+        conversation_indicators = ['thank', 'thanks', 'bye', 'hello', 'hi', 'sorry', 
+                                  'ok', 'okay', 'watching', 'listening']
+        for indicator in conversation_indicators:
+            if indicator in text:
+                score -= 8
+        
+        # Local computer context negates web search
         local_context = ['on computer', 'in computer', 'computer me', 'pc me', 
                         'system me', 'from system', 'system se', 'on my pc', 'my computer']
         for context in local_context:
             if context in text:
                 score -= 10
+        
         return score
     def _contextual_conversation_score(self, text):
         score = 0
+        
+        # Boost short phrases (likely conversational)
         if len(text.split()) <= 3:
-            score += 1
+            score += 2
+        
+        # Strong conversation indicators - common phrases
+        strong_indicators = [
+            'thank you', 'thanks', 'thank', 'thankyou', 'thx',
+            'bye', 'goodbye', 'see you', 'take care',
+            'hello', 'hi', 'hey',
+            'sorry', 'apologies',
+            'ok', 'okay', 'alright', 'sure', 'got it',
+            'wow', 'cool', 'nice', 'great',
+        ]
+        for indicator in strong_indicators:
+            if indicator in text:
+                score += 5
+        
+        # "watching", "listening" without question words = conversation
+        if any(word in text for word in ['watching', 'listening', 'viewing']):
+            if not any(qword in text for qword in ['what', 'who', 'when', 'where', 'why', 'how']):
+                score += 5
+        
+        # Pronouns addressing the assistant
         pronouns = ['you', 'your', 'yourself', 'tum', 'tumhara', 'aap', 'aapka']
         for pronoun in pronouns:
             if pronoun in text.split():
-                score += 1
-        polite_words = ['please', 'kindly', 'thank', 'thanks', 'kripa', 'meherbani']
+                score += 2
+        
+        # Polite words boost
+        polite_words = ['please', 'kindly', 'kripa', 'meherbani']
         for word in polite_words:
             if word in text:
-                score += 0.5
+                score += 1
+        
+        # If text ends with punctuation like "!" or ".", likely conversational
+        if text.endswith(('!', '.')):
+            score += 1
+        
         return score
     def _get_reasoning(self, text, command_type, scores):
         if command_type == CommandType.SYSTEM:
@@ -169,6 +257,7 @@ class CommandClassifier:
 def test_classifier():
     classifier = CommandClassifier()
     test_cases = [
+        # System commands
         "open chrome",
         "close firefox",
         "create a new file",
@@ -176,6 +265,8 @@ def test_classifier():
         "chrome ko open karo",
         "file banao",
         "folder delete karo",
+        
+        # Web searches
         "what is artificial intelligence",
         "how to make pizza",
         "search for python tutorials",
@@ -183,12 +274,28 @@ def test_classifier():
         "kya hai machine learning",
         "batao weather kya hai",
         "search karo best laptop",
+        
+        # Conversations - Basic
         "hello how are you",
         "tell me a joke",
         "thank you",
         "kaise ho",
         "ek kahani sunao",
         "dhanyavad",
+        
+        # Conversations - User reported issues (should be CONVERSATION)
+        "thank you for watching",
+        "thanks for watching",
+        "you",
+        "bye",
+        "goodbye",
+        "see you later",
+        "watching",
+        "thanks",
+        "ok",
+        "okay",
+        "cool",
+        "nice",
     ]
     print("="*70)
     print("COMMAND CLASSIFIER TEST")

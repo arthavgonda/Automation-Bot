@@ -51,7 +51,8 @@ class SmartAssistant:
                     return self._execute_play_media(query, platform)
                 elif action == 'download_app':
                     app_name = command_json.get('app_name', '')
-                    return self._execute_download_app(app_name)
+                    source = command_json.get('source', 'web')  # default to web
+                    return self._execute_download_app(app_name, source)
                 elif action == 'download_research':
                     topic = command_json.get('topic', '')
                     max_papers = command_json.get('max_papers', 5)
@@ -127,19 +128,66 @@ class SmartAssistant:
                 print(f"❌ Play failed: {e}")
                 return False, str(e)
         return False, "Browser not available"
-    def _execute_download_app(self, app_name):
-        if self.system_controller:
-            print(f"📥 Downloading/Installing: {app_name}")
-            success = self.system_controller.download_and_install_app(app_name)
-            if success:
-                return True, f"Installed {app_name}"
+    def _execute_download_app(self, app_name, source='web'):
+        """
+        Download/install application from specified source
+        
+        Args:
+            app_name: Name of the application to install
+            source: Installation source - 'web', 'terminal', 'snap', 'flatpak', 'appstore'
+        """
+        print(f"📥 Downloading/Installing: {app_name} (source: {source})")
+        
+        if source == 'web':
+            # Default: Download from web via browser
+            if self.browser:
+                print(f"🌐 Opening web download for: {app_name}")
+                self.browser.download_and_install(app_name)
+                return True, f"Web download initiated for {app_name}"
             else:
-                print(f"⚠ Not found in package managers, searching web for: {app_name} download")
-                if self.browser:
-                    self.browser.search_google(f"{app_name} download")
-                    return True, f"Opened web search for {app_name}"
-                return False, f"Failed to install {app_name}"
-        return False, "System controller not available"
+                print(f"❌ Browser not available for web download")
+                return False, "Browser not available"
+                
+        elif source == 'terminal':
+            # Install via package manager (apt/dnf/brew/choco)
+            if self.system_controller:
+                print(f"📦 Installing via package manager: {app_name}")
+                self.system_controller.install_app_terminal(app_name)
+                return True, f"Terminal installation initiated for {app_name}"
+            else:
+                return False, "System controller not available"
+                
+        elif source == 'snap':
+            # Install via Snap Store
+            if self.browser:
+                print(f"📦 Installing via Snap: {app_name}")
+                self.browser.install_via_snap(app_name)
+                return True, f"Snap installation initiated for {app_name}"
+            else:
+                return False, "Browser not available"
+                
+        elif source == 'flatpak':
+            # Install via Flatpak
+            if self.browser:
+                print(f"📦 Installing via Flatpak: {app_name}")
+                self.browser.install_via_flatpak(app_name)
+                return True, f"Flatpak installation initiated for {app_name}"
+            else:
+                return False, "Browser not available"
+                
+        elif source == 'appstore':
+            # Install via native app store
+            if self.browser:
+                print(f"🏪 Opening App Store for: {app_name}")
+                self.browser.install_via_appstore(app_name)
+                return True, f"App Store opened for {app_name}"
+            else:
+                return False, "Browser not available"
+                
+        else:
+            # Unknown source - fallback to web
+            print(f"⚠️ Unknown source '{source}', defaulting to web download")
+            return self._execute_download_app(app_name, 'web')
     def _execute_download_research(self, topic, max_papers=5):
         if self.browser:
             try:
@@ -220,6 +268,56 @@ class SmartAssistant:
                 elif command == 'play_video':
                     title = command_json.get('title', '')
                     success = controller.play_video_by_title(title)
+                
+                # ===== TAB MANAGEMENT =====
+                elif command == 'new_tab':
+                    url = command_json.get('url', None)
+                    success = controller.create_new_tab(url)
+                elif command == 'switch_to_tab':
+                    tab_index = command_json.get('tab_index', 1)
+                    success = controller.switch_to_tab(tab_index)
+                elif command == 'first_tab':
+                    success = controller.switch_to_first_tab()
+                elif command == 'last_tab':
+                    success = controller.switch_to_last_tab()
+                elif command == 'next_tab':
+                    success = controller.switch_to_next_tab()
+                elif command == 'previous_tab' or command == 'prev_tab':
+                    success = controller.switch_to_previous_tab()
+                elif command == 'close_tab':
+                    success = controller.close_current_tab()
+                elif command == 'close_other_tabs':
+                    success = controller.close_other_tabs()
+                elif command == 'list_tabs':
+                    success = controller.list_all_tabs()
+                
+                # ===== WINDOW MANAGEMENT =====
+                elif command == 'new_window':
+                    url = command_json.get('url', None)
+                    success = controller.create_new_window(url)
+                elif command == 'incognito_window' or command == 'private_window':
+                    success = controller.create_incognito_window()
+                elif command == 'maximize':
+                    success = controller.maximize_window()
+                elif command == 'minimize':
+                    success = controller.minimize_window()
+                elif command == 'fullscreen':
+                    success = controller.fullscreen_window()
+                
+                # ===== NAVIGATION =====
+                elif command == 'go_back' or command == 'back':
+                    success = controller.go_back()
+                elif command == 'go_forward' or command == 'forward':
+                    success = controller.go_forward()
+                elif command == 'refresh' or command == 'reload':
+                    success = controller.refresh_page()
+                elif command == 'get_url':
+                    url = controller.get_current_url()
+                    success = url is not None
+                elif command == 'get_title':
+                    title = controller.get_page_title()
+                    success = title is not None
+                
                 else:
                     print(f"Unknown browser command: {command}")
                     success = False
