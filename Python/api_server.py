@@ -88,6 +88,84 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+def _clean_response_message(message):
+    if not message:
+        return ""
+    
+    message_lower = message.lower()
+    
+    skip_indicators = [
+        "action:", "executed:", "step", "looking for", "mapped to",
+        "context switched", "context set", "opened:", "opening",
+        "file created:", "folder created:", "cleaned:", "detected",
+        "parsing", "attempting", "command processed"
+    ]
+    
+    if any(indicator in message_lower for indicator in skip_indicators):
+        return ""
+    
+    clean_message = message
+    
+    if " | " in clean_message:
+        parts = clean_message.split(" | ")
+        clean_message = parts[-1].strip()
+    
+    if clean_message.startswith("Created file:"):
+        filename = clean_message.replace("Created file: ", "").strip()
+        return f"Created {filename}"
+    
+    if clean_message.startswith("Opened "):
+        return clean_message
+    
+    if clean_message.startswith("Switched to "):
+        return clean_message
+    
+    if clean_message.startswith("Created folder:"):
+        foldername = clean_message.replace("Created folder: ", "").strip()
+        return f"Created folder {foldername}"
+    
+    if clean_message.startswith("Moved file to "):
+        return clean_message
+    
+    if clean_message.startswith("Copied file to "):
+        return clean_message
+    
+    if clean_message.startswith("Searched for:"):
+        query = clean_message.replace("Searched for: ", "").strip()
+        return f"Searched for {query}"
+    
+    return clean_message
+
+def ensure_browser_driver():
+    global browser_driver
+    try:
+        if browser_driver is None:
+            browser_driver = setup_driver()
+            if browser_driver:
+                logger.info("Browser driver initialized on demand")
+                return True
+            return False
+        
+        try:
+            browser_driver.current_url
+            return True
+        except:
+            logger.info("Browser window closed, reopening...")
+            try:
+                browser_driver.quit()
+            except:
+                pass
+            browser_driver = None
+            browser_driver = setup_driver()
+            if browser_driver:
+                logger.info("Browser driver reopened successfully")
+                return True
+            return False
+    except Exception as e:
+        logger.error(f"Error ensuring browser driver: {e}")
+        browser_driver = None
+        return False
+
 def initialize_system():
     global system_controller, browser_driver, speech_detector
     logger.info("Initializing system components...")
@@ -95,6 +173,8 @@ def initialize_system():
     logger.info("System controller initialized")
     speech_detector = SpeechDetector()
     logger.info("Speech detector initialized")
+    browser_driver = None
+    logger.info("Browser driver: Lazy loading enabled (will open on demand)")
     if WHISPER_AVAILABLE:
         network_available = check_server_connectivity("8.8.8.8", 53, 3)
         if network_available:
@@ -121,10 +201,32 @@ def process_voice_input(audio_np):
                 "text": transcription,
                 "timestamp": time.time()
             })))
+            needs_browser = any(keyword in transcription.lower() for keyword in 
+                              ['search', 'browser', 'web', 'google', 'youtube', 'website', 'download', 'open website'])
+            
+            if needs_browser:
+                if not ensure_browser_driver():
+                    logger.warning("Browser not available for web command")
+            
             if browser_driver and system_controller:
-                result = process_voice_command_smart(browser_driver, system_controller, transcription)
-                if result == "EXIT":
-                    browser_driver = None
+                try:
+                    result = process_voice_command_smart(browser_driver, system_controller, transcription)
+                    if result == "EXIT":
+                        browser_driver = None
+                except Exception as e:
+                    if "closed window" in str(e).lower() or "window_handles" in str(e).lower():
+                        logger.info("Browser closed, attempting to reopen...")
+                        if ensure_browser_driver():
+                            result = process_voice_command_smart(browser_driver, system_controller, transcription)
+                        else:
+                            class DummyDriver:
+                                def get(self, url): pass
+                                def quit(self): pass
+                            dummy = DummyDriver()
+                            assistant = SmartAssistant(dummy, system_controller)
+                            assistant.process_command(transcription)
+                    else:
+                        raise
             elif system_controller:
                 class DummyDriver:
                     def get(self, url): pass
@@ -132,12 +234,47 @@ def process_voice_input(audio_np):
                 dummy = DummyDriver()
                 assistant = SmartAssistant(dummy, system_controller)
                 assistant.process_command(transcription)
-            asyncio.create_task(manager.broadcast(json.dumps({
-                "type": "command_result",
-                "text": transcription,
-                "result": "Command processed",
-                "timestamp": time.time()
-            })))
+            if browser_driver and system_controller:
+                try:
+                    success, message = process_voice_command_smart(browser_driver, system_controller, transcription)
+                    if success and message and message not in ["Command processed", "CONTINUE", "EXIT"]:
+                        clean_message = _clean_response_message(message)
+                        if clean_message:
+                            asyncio.create_task(manager.broadcast(json.dumps({
+                                "type": "command_result",
+                                "text": transcription,
+                                "result": clean_message,
+                                "timestamp": time.time()
+                            })))
+                except Exception as e:
+                    if "closed window" in str(e).lower() or "window_handles" in str(e).lower():
+                        try:
+                            if ensure_browser_driver():
+                                success, message = process_voice_command_smart(browser_driver, system_controller, transcription)
+                                if success and message and message not in ["Command processed", "CONTINUE", "EXIT"]:
+                                    clean_message = _clean_response_message(message)
+                                    if clean_message:
+                                        asyncio.create_task(manager.broadcast(json.dumps({
+                                            "type": "command_result",
+                                            "text": transcription,
+                                            "result": clean_message,
+                                            "timestamp": time.time()
+                                        })))
+                        except:
+                            pass
+            elif system_controller:
+                dummy = type('DummyDriver', (), {'get': lambda self, url: None, 'quit': lambda self: None})()
+                assistant = SmartAssistant(dummy, system_controller)
+                success, message = assistant.process_command(transcription)
+                if success and message and message not in ["Command processed", "CONTINUE", "EXIT"]:
+                    clean_message = _clean_response_message(message)
+                    if clean_message:
+                        asyncio.create_task(manager.broadcast(json.dumps({
+                            "type": "command_result",
+                            "text": transcription,
+                            "result": clean_message,
+                            "timestamp": time.time()
+                        })))
         return transcription
     except Exception as e:
         logger.error(f"Error processing voice input: {e}")
@@ -223,20 +360,50 @@ async def process_command(command: VoiceCommand):
     global browser_driver, system_controller
     try:
         if system_controller:
+            needs_browser = any(keyword in command.command.lower() for keyword in 
+                              ['search', 'browser', 'web', 'google', 'youtube', 'website', 'download', 'open website'])
+            
+            if needs_browser:
+                if not ensure_browser_driver():
+                    return CommandResponse(
+                        success=False,
+                        message="Failed to initialize browser. Please check browser installation."
+                    )
+            
             if browser_driver:
-                result = process_voice_command_smart(browser_driver, system_controller, command.command)
+                try:
+                    success, message = process_voice_command_smart(browser_driver, system_controller, command.command)
+                    result_message = _clean_response_message(message) if success else f"Error: {message}"
+                except Exception as e:
+                    if "closed window" in str(e).lower() or "window_handles" in str(e).lower():
+                        logger.info("Browser closed, attempting to reopen...")
+                        if ensure_browser_driver():
+                            success, message = process_voice_command_smart(browser_driver, system_controller, command.command)
+                            result_message = _clean_response_message(message) if success else f"Error: {message}"
+                        else:
+                            class DummyDriver:
+                                def get(self, url): pass
+                                def quit(self): pass
+                            dummy = DummyDriver()
+                            assistant = SmartAssistant(dummy, system_controller)
+                            success, message = assistant.process_command(command.command)
+                            result_message = _clean_response_message(message) if success else f"Error: {message}"
+                    else:
+                        result_message = f"Error: {str(e)}"
+                        success = False
             else:
                 class DummyDriver:
                     def get(self, url): pass
                     def quit(self): pass
                 dummy = DummyDriver()
                 assistant = SmartAssistant(dummy, system_controller)
-                assistant.process_command(command.command)
-                result = "Command processed"
+                success, message = assistant.process_command(command.command)
+                result_message = _clean_response_message(message) if success else f"Error: {message}"
+            
             return CommandResponse(
-                success=True,
-                message="Command processed successfully",
-                result={"output": result}
+                success=success,
+                message=result_message,
+                result={"output": result_message}
             )
         else:
             return CommandResponse(

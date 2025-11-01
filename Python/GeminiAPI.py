@@ -39,6 +39,12 @@ class GeminiAssistant:
         if browser_search:
             target = browser_search.group(6).strip()
             return f"search {target}"
+        
+        cleaned = re.sub(r',\s+', ' and ', cleaned, flags=re.IGNORECASE)
+        
+        if ('create' in cleaned.lower() or 'make' in cleaned.lower()) and 'file' in cleaned.lower():
+            cleaned = re.sub(r'^(i\s+want\s+you\s+to|i\s+want|please|can\s+you|could\s+you|would\s+you)\s+', '', cleaned, flags=re.IGNORECASE)
+        
         cleaned = re.sub(r'^(hello|hi|hey|good morning|good afternoon|good evening|namaste)\s+', '', cleaned, flags=re.IGNORECASE)
         cleaned = re.sub(r'\b(bot|chatbot|assistant|either)\b', '', cleaned, flags=re.IGNORECASE)
         cleaned = re.sub(r'\b(what i want you to do is|i want you to|i need you to)\b', '', cleaned, flags=re.IGNORECASE)
@@ -78,12 +84,38 @@ Examples:
 • "Hello bot, open steam" → {{"action": "open_app", "app_name": "Steam"}}
 • "Good evening, launch calculator" → {{"action": "open_app", "app_name": "Calculator"}}
 
-2️⃣ WEB_SEARCH - Search on Google
+🔄 SWITCH_APP - Switch control to another application
+Examples:
+• "switch to chrome" → {{"action": "switch_app", "app_name": "chrome"}}
+• "switch to vscode" → {{"action": "switch_app", "app_name": "vscode"}}
+• "go to browser" → {{"action": "switch_app", "app_name": "browser"}}
+• "switch to previous app" → {{"action": "switch_app", "app_name": "previous"}}
+• "switch back" → {{"action": "switch_app", "app_name": "back"}}
+
+🎮 APP_COMMAND - Execute commands within active application
+Examples:
+• "save file" → {{"action": "app_command", "command": "save"}}
+• "type hello world" → {{"action": "app_command", "command": "type", "params": {{"text": "hello world"}}}}
+• "copy this" → {{"action": "app_command", "command": "copy"}}
+• "paste" → {{"action": "app_command", "command": "paste"}}
+• "undo" → {{"action": "app_command", "command": "undo"}}
+• "press enter" → {{"action": "app_command", "command": "enter"}}
+• "new tab" → {{"action": "app_command", "command": "new tab"}}
+• "close tab" → {{"action": "app_command", "command": "close tab"}}
+• "bold" → {{"action": "app_command", "command": "bold"}}
+• "find" → {{"action": "app_command", "command": "find"}}
+• "scroll down" → {{"action": "app_command", "command": "scroll down"}}
+
+2️⃣ WEB_SEARCH - Search on Google (NOT when in app context)
 Examples:
 • "search Python" → {{"action": "web_search", "query": "python"}}
 • "Hello, search for weather" → {{"action": "web_search", "query": "weather"}}
 • "open browser and go to steam" → {{"action": "web_search", "query": "steam"}}
 • "search steam" → {{"action": "web_search", "query": "steam"}}
+
+🔥 IMPORTANT: If user is already in an application and says something generic, use app_command with type!
+• In VSCode + "hello world" → {{"action": "app_command", "command": "type", "params": {{"text": "hello world"}}}}
+• In Notepad + "my name is john" → {{"action": "app_command", "command": "type", "params": {{"text": "my name is john"}}}}
 
 3️⃣ OPEN_WEBSITE - Open a website directly
 Examples:
@@ -182,6 +214,66 @@ Example: "list apps" → {{"action": "list_apps"}}
 • "volume up" → {{"action": "browser_control", "command": "volume_up"}}
 • "volume down" → {{"action": "browser_control", "command": "volume_down"}}
 
+🔟 COMPLEX_COMMAND - Multi-step commands with AND/THEN
+Examples:
+• "open VS Code and create file tut1.cpp" → {{"action": "complex_command", "steps": [
+  {{"action": "open_app", "app_name": "vscode"}},
+  {{"action": "create_file", "file_path": "tut1.cpp", "open_in_app": "vscode"}}
+]}}
+• "I want you to create a file tut1.cpp and open it in VS Code" → {{"action": "complex_command", "steps": [
+  {{"action": "create_file", "file_path": "tut1.cpp", "open_in_app": "vscode"}}
+]}}
+• "create file tut1.cpp and open it in VS Code" → {{"action": "complex_command", "steps": [
+  {{"action": "create_file", "file_path": "tut1.cpp", "open_in_app": "vscode"}}
+]}}
+• "open VS Code and make a file called tut1.cpp" → {{"action": "complex_command", "steps": [
+  {{"action": "open_app", "app_name": "vscode"}},
+  {{"action": "create_file", "file_path": "tut1.cpp", "open_in_app": "vscode"}}
+]}}
+• "can you open VS Code and make a file called tut1.cpp" → {{"action": "complex_command", "steps": [
+  {{"action": "open_app", "app_name": "vscode"}},
+  {{"action": "create_file", "file_path": "tut1.cpp", "open_in_app": "vscode"}}
+]}}
+• "open Chrome and search Python tutorials" → {{"action": "complex_command", "steps": [
+  {{"action": "open_app", "app_name": "chrome"}},
+  {{"action": "web_search", "query": "Python tutorials"}}
+]}}
+• "open firefox and search youtube" → {{"action": "complex_command", "steps": [
+  {{"action": "open_app", "app_name": "firefox"}},
+  {{"action": "web_search", "query": "youtube"}}
+]}}
+• "open browser and search for cats" → {{"action": "complex_command", "steps": [
+  {{"action": "open_app", "app_name": "chrome"}},
+  {{"action": "web_search", "query": "cats"}}
+]}}
+• "create folder projects and make file main.py" → {{"action": "complex_command", "steps": [
+  {{"action": "create_folder", "folder_path": "projects"}},
+  {{"action": "create_file", "file_path": "projects/main.py"}}
+]}}
+
+1️⃣1️⃣ CREATE_FILE - Create a new file (with folder creation if needed)
+Examples:
+• "create file tut1.cpp" → {{"action": "create_file", "file_path": "tut1.cpp"}}
+• "make a file called tut1.cpp" → {{"action": "create_file", "file_path": "tut1.cpp"}}
+• "create file named test.py" → {{"action": "create_file", "file_path": "test.py"}}
+• "make file test.py in folder scripts" → {{"action": "create_file", "file_path": "scripts/test.py", "create_folder_if_missing": true}}
+• "create document.txt" → {{"action": "create_file", "file_path": "document.txt"}}
+
+1️⃣2️⃣ CREATE_FOLDER - Create a new folder/directory
+Examples:
+• "create folder projects" → {{"action": "create_folder", "folder_path": "projects"}}
+• "make directory test" → {{"action": "create_folder", "folder_path": "test"}}
+
+1️⃣3️⃣ MOVE_FILE - Move file from one location to another
+Examples:
+• "move file.txt to folder backup" → {{"action": "move_file", "source": "file.txt", "destination": "backup/file.txt"}}
+• "move document.pdf from downloads to documents" → {{"action": "move_file", "source": "downloads/document.pdf", "destination": "documents/document.pdf"}}
+
+1️⃣4️⃣ COPY_FILE - Copy file from one location to another
+Examples:
+• "copy file.txt to folder backup" → {{"action": "copy_file", "source": "file.txt", "destination": "backup/file.txt"}}
+• "copy document.pdf to documents folder" → {{"action": "copy_file", "source": "document.pdf", "destination": "documents/document.pdf"}}
+
 🔟 CONVERSATION - ONLY if there's NO command at all
 Examples:
 • "hello" (nothing else) → {{"action": "conversation", "text": "hello"}}
@@ -190,19 +282,39 @@ Examples:
 
 Rules:
 ✨ Return ONLY valid JSON (no explanation, no markdown, no code blocks)
-✨ IGNORE greetings if there's a command
+✨ IGNORE greetings AND politeness phrases - focus on ACTION
+✨ "I want you to create file X" = create_file action (ignore "I want you to")
+✨ "I want you to open X and create file Y" = complex_command with steps
+✨ "create file X and open it in Y" = complex_command with steps
+✨ "create file X in Y" where Y is an app = complex_command
+✨ "open X and create file Y" = complex_command with steps
+✨ "open X and make a file called Y" = complex_command with steps (extract Y, not "called")
+✨ "open X and [action]" = complex_command for multi-step operations
+✨ "create file X" = create_file action (auto-create folder if missing)
+✨ "make a file called X" = create_file with file_path: "X" (NOT "called")
+✨ When user says "called X", "named X", or "titled X", extract X as the filename
+✨ If command contains "create file" or "make file" AND mentions an app, use complex_command
+✨ "create folder X" = create_folder action
+✨ "move file X to Y" = move_file action
+✨ "copy file X to Y" = copy_file action
+✨ "switch to X" or "go to X" (for apps) = switch_app action
+✨ "switch back" or "previous app" = switch_app with app_name: "previous"
+✨ Commands like "save", "copy", "paste", "undo" = app_command action
+✨ "type X" or "write X" = app_command with command: "type" and params
+✨ Generic text in app context = app_command with type
 ✨ "go to [WEBSITE]" without "search" = open_website action (e.g., "go to youtube" → youtube.com)
 ✨ "open [WEBSITE]" without "search" = open_website action (e.g., "open google" → google.com)
 ✨ "visit [WEBSITE]" = open_website action
 ✨ "click on [TEXT]" where TEXT is not a number = browser_control with click_by_text
 ✨ "click on the [NUMBER]" = browser_control with click_nth
-✨ "scroll" = browser_control action  
+✨ "scroll" in browser = browser_control action
+✨ "scroll" in app = app_command action
 ✨ "volume up/down" = browser_control action
-✨ "new tab" or "create new tab" = browser_control with new_tab
+✨ "new tab" or "create new tab" = browser_control with new_tab OR app_command (if not browser)
 ✨ "first tab" or "last tab" = browser_control with first_tab/last_tab
 ✨ "next tab" or "previous tab" = browser_control with next_tab/previous_tab
 ✨ "tab X" or "Xth tab" = browser_control with switch_to_tab
-✨ "close tab" = browser_control with close_tab
+✨ "close tab" = browser_control with close_tab OR app_command
 ✨ "new window" = browser_control with new_window
 ✨ "incognito" or "private window" = browser_control with incognito_window
 ✨ "go back" or "go forward" = browser_control with go_back/go_forward
@@ -212,11 +324,13 @@ Rules:
 ✨ "download research on X" or "fetch research papers" = download_research action
 ✨ 🔥 "download/install X from/via [SOURCE]" = download_app with source field (CRITICAL!)
 ✨ "download X" or "install X" (for apps) = download_app action with source: "web" (default)
-✨ "open browser and search X" = web_search for X
-✨ "open/go to [WEBSITE] and search X" = platform_search (WEBSITE can be ANY site!)
+✨ "open browser and search X" OR "open [BROWSER] and search X" = complex_command: open_app + web_search
+✨ Browsers (Chrome, Firefox, Edge, Safari, Brave, Opera) = open_app, NOT platform_search
+✨ "open/go to [WEBSITE] and search X" = platform_search (WEBSITE like youtube, instagram, etc.)
 ✨ "search X on [WEBSITE]" = platform_search
 ✨ Prefer action over conversation when unsure
 ✨ 🔥 ALWAYS extract download source if mentioned: "from web", "from snap", "via terminal", etc.
+✨ 🔥 App control keywords: save, copy, paste, cut, undo, redo, find, close, bold, italic, etc.
 
 User Input: {cleaned_text}
 JSON Output:"""
@@ -267,15 +381,27 @@ JSON Output:"""
                 return {"action": "platform_search", "platform": platform, "query": query}
         match2 = re.search(r'(?:go to|open|use)\s+(\w+)\s+(?:and|to)\s+(?:search|find|lookup|write)\s+(?:for\s+)?(.+)', text_lower)
         if match2:
-            platform, query = match2.groups()
+            platform_or_browser, query = match2.groups()
             query = query.strip()
-            platform = platform.strip()
+            platform_or_browser = platform_or_browser.strip().lower()
+            
+            browsers = ['chrome', 'firefox', 'edge', 'safari', 'brave', 'opera']
+            if any(browser in platform_or_browser for browser in browsers):
+                import re
+                app_match = re.search(r'(?:open|use)\s+(\w+)', text_lower)
+                if app_match:
+                    browser_name = app_match.group(1).strip()
+                    return {"action": "complex_command", "steps": [
+                        {"action": "open_app", "app_name": browser_name},
+                        {"action": "web_search", "query": query}
+                    ]}
+            
             web_indicators = ['youtube', 'google', 'instagram', 'facebook', 'twitter', 'amazon', 
                              'reddit', 'wikipedia', 'spotify', 'linkedin', 'github', 'chatgpt',
                              'netflix', 'pinterest', 'tiktok', 'snapchat', 'whatsapp', 'telegram',
                              'stackoverflow', 'medium', 'quora', 'ebay', 'imdb', 'yelp', 'twitch']
-            if any(indicator in platform for indicator in web_indicators) or len(platform) > 3:
-                return {"action": "platform_search", "platform": platform, "query": query}
+            if any(indicator in platform_or_browser for indicator in web_indicators) or len(platform_or_browser) > 3:
+                return {"action": "platform_search", "platform": platform_or_browser, "query": query}
         match3 = re.search(r'(\w+)\s+(?:pe|mein|me)\s+(?:search|find|dhoondo)\s+(.+)', text_lower)
         if match3:
             platform, query = match3.groups()
@@ -287,18 +413,237 @@ JSON Output:"""
                              'stackoverflow', 'medium', 'quora', 'ebay', 'imdb', 'yelp', 'twitch']
             if any(indicator in platform for indicator in web_indicators) or len(platform) > 3:
                 return {"action": "platform_search", "platform": platform, "query": query}
+        if ('open' in text_lower or 'launch' in text_lower or 'start' in text_lower) and any(word in text_lower for word in ['search', 'searc', 'serch', 'find', 'lookup']) and any(browser in text_lower for browser in ['chrome', 'firefox', 'edge', 'safari', 'brave', 'opera', 'browser']):
+            import re
+            browsers = ['chrome', 'firefox', 'edge', 'safari', 'brave', 'opera', 'browser']
+            for browser in browsers:
+                if browser in text_lower:
+                    pattern = r'(?:open|launch|start)\s+(' + browser + r')\s+and\s+(?:search|searc|serch|find|lookup)\s+(?:for\s+)?(.+)'
+                    match = re.search(pattern, text_lower)
+                    if match:
+                        browser_name = match.group(1).strip()
+                        query = match.group(2).strip()
+                        return {"action": "complex_command", "steps": [
+                            {"action": "open_app", "app_name": browser_name},
+                            {"action": "web_search", "query": query}
+                        ]}
+        
+        if ('open' in text_lower or 'launch' in text_lower or 'start' in text_lower) and ('create' in text_lower or 'make' in text_lower) and 'file' in text_lower:
+            import re
+            patterns = [
+                r'(?:open|launch|start)\s+(.+?)\s+(?:and|,)\s+(?:create|make)\s+(?:and\s+)?(?:open\s+)?(?:a\s+|the\s+)?file\s+(?:called|named|titled)?\s*([^\s]+(?:\.[^\s]+)?)',
+                r'(?:open|launch|start)\s+(.+?)\s+and\s+(?:create|make)\s+(?:a\s+|the\s+)?file\s+(?:called|named|titled)?\s*([^\s]+(?:\.[^\s]+)?)',
+                r'(?:open|launch|start)\s+(.+?)\s+and\s+(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\.[^\s]+)?)',
+            ]
+            for pattern in patterns:
+                match = re.search(pattern, text_lower)
+                if match:
+                    app_name = match.group(1).strip().rstrip(',')
+                    file_name = match.group(2).strip().rstrip('.,!?;:')
+                    
+                    app_name = app_name.replace('vs code', 'vscode').replace('visual studio code', 'vscode').replace(' vs ', ' vscode ')
+                    if app_name.lower() == 'vs' or app_name.lower().strip() == 'vs':
+                        app_name = 'vscode'
+                    
+                    if file_name and file_name not in ['called', 'named', 'titled', 'a', 'the', 'it']:
+                        return {"action": "complex_command", "steps": [
+                            {"action": "open_app", "app_name": app_name},
+                            {"action": "create_file", "file_path": file_name, "create_folder_if_missing": True, "open_in_app": app_name}
+                        ]}
+        
         if text_lower.startswith(('search ', 'google ', 'find ', 'lookup ')):
             query = text_lower.split(None, 1)[1] if len(text_lower.split()) > 1 else text_lower
             return {"action": "web_search", "query": query}
+        elif text_lower.startswith(('switch to ', 'switch back', 'go to ', 'focus on ')):
+            if 'switch back' in text_lower or 'previous app' in text_lower:
+                return {"action": "switch_app", "app_name": "previous"}
+            
+            app_name = text_lower
+            for prefix in ['switch to ', 'go to ', 'focus on ']:
+                if text_lower.startswith(prefix):
+                    app_name = text_lower[len(prefix):].strip()
+                    break
+            
+            app_keywords = ['chrome', 'firefox', 'vscode', 'code', 'terminal', 'calculator', 
+                           'notepad', 'word', 'excel', 'browser', 'spotify', 'discord', 
+                           'steam', 'vlc', 'gimp', 'photoshop']
+            
+            if any(keyword in app_name for keyword in app_keywords):
+                return {"action": "switch_app", "app_name": app_name}
+        
         elif text_lower.startswith(('open ', 'launch ', 'start ', 'run ')):
             app_name = text_lower.split(None, 1)[1] if len(text_lower.split()) > 1 else text_lower
-            if 'and search' in text_lower or 'and find' in text_lower:
+            
+            if ('and' in app_name.lower() or ',' in app_name.lower()) and ('create' in app_name.lower() or 'make' in app_name.lower()) and 'file' in app_name.lower():
+                import re
+                app_name_normalized = app_name.lower().replace(',', ' and ')
+                patterns = [
+                    r'^(.+?)\s+and\s+(?:create|make)\s+(?:and\s+)?(?:open\s+)?(?:a\s+|the\s+)?file\s+(?:called|named|titled)?\s*([^\s]+(?:\.[^\s]+)?)',
+                    r'^(.+?)\s+and\s+(?:create|make)\s+(?:a\s+|the\s+)?file\s+(?:called|named|titled)?\s*([^\s]+(?:\.[^\s]+)?)',
+                    r'^(.+?)\s+and\s+(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\.[^\s]+)?)',
+                ]
+                for pattern in patterns:
+                    match = re.search(pattern, app_name_normalized)
+                    if match:
+                        actual_app = match.group(1).strip().rstrip(',')
+                        file_name = match.group(2).strip().rstrip('.,!?;:')
+                        
+                        actual_app = actual_app.replace('vs code', 'vscode').replace('visual studio code', 'vscode').replace(' vs ', ' vscode ')
+                        if actual_app.lower() == 'vs' or actual_app.lower().strip() == 'vs':
+                            actual_app = 'vscode'
+                        
+                        if file_name and file_name not in ['called', 'named', 'titled', 'a', 'the', 'it']:
+                            return {"action": "complex_command", "steps": [
+                                {"action": "open_app", "app_name": actual_app},
+                                {"action": "create_file", "file_path": file_name, "create_folder_if_missing": True, "open_in_app": actual_app}
+                            ]}
+            
+            search_variations = ['search', 'searc', 'serch', 'find', 'lookup']
+            has_search = any(var in app_name.lower() for var in search_variations)
+            
+            if ('and' in app_name.lower() or ',' in app_name.lower()) and has_search:
+                import re
+                app_name_normalized = app_name.lower().replace(',', ' and ')
+                browsers = ['chrome', 'firefox', 'edge', 'safari', 'brave', 'opera', 'browser']
+                
+                for browser in browsers:
+                    if browser in app_name_normalized:
+                        pattern = r'^(.+?)\s+and\s+(?:search|searc|serch|find|lookup)\s+(?:for\s+)?(.+)'
+                        match = re.search(pattern, app_name_normalized)
+                        if match:
+                            browser_name = match.group(1).strip()
+                            query = match.group(2).strip()
+                            if any(b in browser_name for b in browsers):
+                                return {"action": "complex_command", "steps": [
+                                    {"action": "open_app", "app_name": browser_name},
+                                    {"action": "web_search", "query": query}
+                                ]}
+                
                 parts = app_name.split('and')
                 if len(parts) >= 2:
-                    platform = parts[0].strip()
-                    query = ' '.join(parts[1:]).replace('search', '').replace('find', '').strip()
-                    return {"action": "platform_search", "platform": platform, "query": query}
+                    browser_or_app = parts[0].strip().lower()
+                    query_parts = []
+                    for part in parts[1:]:
+                        cleaned = part.replace('search', '').replace('searc', '').replace('serch', '').replace('find', '').replace('lookup', '').strip()
+                        if cleaned:
+                            query_parts.append(cleaned)
+                    query = ' '.join(query_parts).strip()
+                    
+                    if any(browser in browser_or_app for browser in browsers):
+                        return {"action": "complex_command", "steps": [
+                            {"action": "open_app", "app_name": parts[0].strip()},
+                            {"action": "web_search", "query": query}
+                        ]}
+                    
+                    return {"action": "platform_search", "platform": parts[0].strip(), "query": query}
+            
+            if app_name.lower() in ['vs', 'vscode', 'visual studio', 'visual studio code', 'code']:
+                app_name = 'vscode'
+            
             return {"action": "open_app", "app_name": app_name}
+        
+        elif 'create file' in text_lower or 'make file' in text_lower:
+            import re
+            patterns = [
+                r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+(?:called|named|titled)\s+([^\s]+(?:\.[^\s]+)?(?:\s|$))',
+                r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\.[^\s]+)?)',
+                r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\s+[^\s]+)*?)(?:\s+and|\s+in|\s+to|$)',
+            ]
+            for pattern in patterns:
+                file_match = re.search(pattern, text_lower)
+                if file_match:
+                    file_name = file_match.group(1).strip()
+                    file_name = file_name.rstrip('.,!?;:')
+                    if file_name and file_name not in ['called', 'named', 'titled', 'a', 'the']:
+                        open_in_app = None
+                        if 'vscode' in text_lower or 'visual studio' in text_lower or 'code' in text_lower:
+                            open_in_app = 'vscode'
+                        return {"action": "create_file", "file_path": file_name, "create_folder_if_missing": True, "open_in_app": open_in_app}
+        
+        elif ('create' in text_lower or 'make' in text_lower) and 'file' in text_lower:
+            import re
+            app_mentioned = None
+            app_keywords = {
+                'vscode': ['vscode', 'vs code', 'visual studio code', 'code editor'],
+                'chrome': ['chrome', 'browser', 'google chrome'],
+                'firefox': ['firefox'],
+                'notepad': ['notepad'],
+            }
+            
+            for app_key, keywords in app_keywords.items():
+                for keyword in keywords:
+                    if keyword in text_lower:
+                        app_mentioned = app_key
+                        break
+                if app_mentioned:
+                    break
+            
+            if 'open it' in text_lower or 'open in' in text_lower or app_mentioned:
+                file_patterns = [
+                    r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+(?:called|named|titled)?\s*([^\s]+(?:\.[^\s]+)?)',
+                    r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\.[^\s]+)?)',
+                ]
+                for pattern in file_patterns:
+                    file_match = re.search(pattern, text_lower)
+                    if file_match:
+                        file_name = file_match.group(1).strip()
+                        file_name = file_name.rstrip('.,!?;:')
+                        if file_name and file_name not in ['called', 'named', 'titled', 'a', 'the', 'it']:
+                            target_app = app_mentioned if app_mentioned else 'vscode'
+                            return {"action": "complex_command", "steps": [
+                                {"action": "create_file", "file_path": file_name, "create_folder_if_missing": True, "open_in_app": target_app}
+                            ]}
+            
+            file_patterns = [
+                r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+(?:called|named|titled)\s+([^\s]+(?:\.[^\s]+)?(?:\s|$))',
+                r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\.[^\s]+)?)',
+                r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\s+[^\s]+)*?)(?:\s+and|\s+in|\s+to|$)',
+            ]
+            for pattern in file_patterns:
+                file_match = re.search(pattern, text_lower)
+                if file_match:
+                    file_name = file_match.group(1).strip()
+                    file_name = file_name.rstrip('.,!?;:')
+                    if file_name and file_name not in ['called', 'named', 'titled', 'a', 'the']:
+                        open_in_app = app_mentioned
+                        if 'vscode' in text_lower or 'visual studio' in text_lower or 'code' in text_lower:
+                            open_in_app = 'vscode'
+                        return {"action": "create_file", "file_path": file_name, "create_folder_if_missing": True, "open_in_app": open_in_app}
+        
+        elif 'open' in text_lower and ('create' in text_lower or 'make' in text_lower) and 'file' in text_lower:
+            import re
+            patterns = [
+                r'open\s+([^\s]+(?:\s+[^\s]+)*?)\s+and\s+(?:create|make)\s+(?:a\s+|the\s+)?file\s+(?:called|named|titled)\s+([^\s]+(?:\.[^\s]+)?(?:\s|$))',
+                r'open\s+([^\s]+(?:\s+[^\s]+)*?)\s+and\s+(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\.[^\s]+)?)',
+            ]
+            for pattern in patterns:
+                app_match = re.search(pattern, text_lower)
+                if app_match:
+                    app_name = app_match.group(1).strip()
+                    file_name = app_match.group(2).strip()
+                    file_name = file_name.rstrip('.,!?;:')
+                    if file_name and file_name not in ['called', 'named', 'titled', 'a', 'the']:
+                        app_name = app_name.replace('vs code', 'vscode').replace('visual studio code', 'vscode')
+                        return {"action": "complex_command", "steps": [
+                            {"action": "open_app", "app_name": app_name},
+                            {"action": "create_file", "file_path": file_name, "create_folder_if_missing": True, "open_in_app": app_name}
+                        ]}
+        
+        elif text_lower.startswith(('type ', 'write ', 'enter ')):
+            text_to_type = text_lower
+            for prefix in ['type ', 'write ', 'enter ']:
+                if text_lower.startswith(prefix):
+                    text_to_type = text[len(prefix):].strip()
+                    break
+            return {"action": "app_command", "command": "type", "params": {"text": text_to_type}}
+        
+        elif any(cmd in text_lower for cmd in ['save', 'copy', 'paste', 'cut', 'undo', 'redo', 
+                                                 'select all', 'bold', 'italic', 'underline',
+                                                 'find', 'replace']):
+            for cmd in ['save file', 'save', 'copy', 'paste', 'cut', 'undo', 'redo', 
+                       'select all', 'bold', 'italic', 'underline', 'find', 'replace']:
+                if cmd in text_lower:
+                    return {"action": "app_command", "command": cmd}
         elif text_lower.startswith(('play ', 'play the ', 'play first ')):
             query = text_lower.replace('play ', '').replace('the ', '').replace('first ', '').strip()
             return {"action": "play_media", "query": query, "platform": "youtube"}
@@ -424,6 +769,18 @@ JSON Output:"""
             return {"action": "browser_control", "command": "get_title"}
         elif 'click' in text_lower and 'first' in text_lower:
             return {"action": "browser_control", "command": "click_first_link"}
+        elif any(word in text_lower for word in ['press enter', 'hit enter', 'press return']):
+            return {"action": "app_command", "command": "enter"}
+        
+        elif any(word in text_lower for word in ['press escape', 'hit escape', 'press esc']):
+            return {"action": "app_command", "command": "escape"}
+        
+        elif any(word in text_lower for word in ['press tab', 'hit tab']):
+            return {"action": "app_command", "command": "tab"}
+        
+        elif 'delete' in text_lower or 'backspace' in text_lower:
+            return {"action": "app_command", "command": "delete"}
+        
         elif 'click' in text_lower or 'press' in text_lower or 'select' in text_lower:
             import re
             number_match = re.search(r'(\d+)(st|nd|rd|th)?', text_lower)
@@ -457,6 +814,40 @@ JSON Output:"""
                         if text_to_click not in ['cross', 'cross button', 'popup', 'first', 'first link', 'that', 'this', 'it'] and len(text_to_click) > 2:
                             return {"action": "browser_control", "command": "click_by_text", "text": text_to_click}
                 return {"action": "browser_control", "command": "click_first_link"}
+        if ('create' in text_lower or 'make' in text_lower) and 'file' in text_lower:
+            import re
+            app_mentioned = None
+            app_keywords = {
+                'vscode': ['vscode', 'vs code', 'visual studio code', 'code editor'],
+                'chrome': ['chrome', 'browser', 'google chrome'],
+                'firefox': ['firefox'],
+                'notepad': ['notepad'],
+            }
+            
+            for app_key, keywords in app_keywords.items():
+                for keyword in keywords:
+                    if keyword in text_lower:
+                        app_mentioned = app_key
+                        break
+                if app_mentioned:
+                    break
+            
+            if 'open it' in text_lower or 'open in' in text_lower or app_mentioned:
+                file_patterns = [
+                    r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+(?:called|named|titled)?\s*([^\s]+(?:\.[^\s]+)?)',
+                    r'(?:create|make)\s+(?:a\s+|the\s+)?file\s+([^\s]+(?:\.[^\s]+)?)',
+                ]
+                for pattern in file_patterns:
+                    file_match = re.search(pattern, text_lower)
+                    if file_match:
+                        file_name = file_match.group(1).strip()
+                        file_name = file_name.rstrip('.,!?;:')
+                        if file_name and file_name not in ['called', 'named', 'titled', 'a', 'the', 'it']:
+                            target_app = app_mentioned if app_mentioned else 'vscode'
+                            return {"action": "complex_command", "steps": [
+                                {"action": "create_file", "file_path": file_name, "create_folder_if_missing": True, "open_in_app": target_app}
+                            ]}
+        
         greeting_only = re.match(r'^(hello|hi|hey|thank you|thanks|how are you|namaste|kaise ho)[\s\.,!?]*$', text_lower)
         if greeting_only:
             return {"action": "conversation", "text": text}

@@ -21,3 +21,5 @@ webdriver-manager
 # System utilities
 psutil
 pathlib2
+pyautogui
+pynput

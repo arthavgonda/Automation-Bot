@@ -328,6 +328,7 @@ class SystemController:
             'vs code': {'Windows': 'code', 'Linux': 'code', 'Darwin': 'Visual Studio Code'},
             'visual studio code': {'Windows': 'code', 'Linux': 'code', 'Darwin': 'Visual Studio Code'},
             'visual studio': {'Windows': 'code', 'Linux': 'code', 'Darwin': 'Visual Studio Code'},
+            'vs': {'Windows': 'code', 'Linux': 'code', 'Darwin': 'Visual Studio Code'},
             'cs code': {'Windows': 'code', 'Linux': 'code', 'Darwin': 'Visual Studio Code'},
             'vc code': {'Windows': 'code', 'Linux': 'code', 'Darwin': 'Visual Studio Code'},
             'pycharm': {'Windows': 'pycharm', 'Linux': 'pycharm', 'Darwin': 'PyCharm'},

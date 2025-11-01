@@ -1,6 +1,6 @@
 # EitherAssistant
 
-An AI-powered voice assistant application built with Avalonia UI (C#) frontend and Python backend, featuring real-time speech recognition, intelligent browser automation, and system control capabilities.
+An AI-powered voice assistant application built with Avalonia UI (C#) frontend and Python backend, featuring real-time speech recognition, intelligent browser automation, and system control capabilities. Designed with accessibility and digital inclusion in mind, EitherAssistant enables hands-free computer control through natural voice commands, supporting users with disabilities and those in low-connectivity environments.
 
 ## 🚀 Features
 
@@ -10,6 +10,7 @@ An AI-powered voice assistant application built with Avalonia UI (C#) frontend a
 - **Settings Management**: User-friendly configuration interface
 - **Message Display**: Real-time feedback and status updates
 - **Cross-platform**: Runs on Windows, macOS, and Linux
+- **Accessibility Support**: Built-in support for platform-native accessibility APIs and screen readers
 
 ### Backend (Python Voice Automation)
 - **Dual-mode STT (Speech-to-Text)**
@@ -20,6 +21,15 @@ An AI-powered voice assistant application built with Avalonia UI (C#) frontend a
 - **Smart System Control**: File management, package installation, app store access
 - **Real-time Audio Processing**: WebRTC VAD, noise reduction, automatic calibration
 - **RESTful API**: Comprehensive API for voice processing and automation
+- **Voice-Controlled Application Management**: Control any application entirely through voice commands with context switching
+
+### 🌍 Accessibility & Digital Inclusion
+- **Motor Disabilities Support**: Complete hands-free computer control eliminates keyboard/mouse dependency
+- **Visual Impairments Support**: Voice feedback and screen reader compatible interface design
+- **Offline Capability**: Functions without internet connectivity using Vosk, addressing connectivity gaps
+- **Cost-Free**: Open source solution with no licensing or subscription fees
+- **Natural Language Commands**: Intuitive interaction model reduces cognitive load
+- **Cross-Platform**: Works on existing devices without platform lock-in
 
 ## 📁 Project Structure
 
@@ -278,6 +288,14 @@ Settings can be modified through the application's settings window or by editing
 
 ## 🎤 Voice Commands
 
+### Application Control
+```
+open [App Name]             - Launch application (VS Code, Firefox, Chrome, etc.)
+open [App] and create file [filename] - Open app and create a file
+open [Browser] and search [query] - Open browser and search
+switch to [App Name]        - Switch context to another application
+```
+
 ### Browser Commands
 ```
 search for [query]          - Search Google
@@ -303,6 +321,8 @@ create folder MyFolder      - Create a new folder
 delete folder TestFolder    - Delete a folder
 create file test.txt        - Create a new file
 delete file test.txt        - Delete a file
+move file [source] to [destination] - Move file between folders
+copy file [source] to [destination] - Copy file to another location
 list files                  - List files in home directory
 list files in Documents     - List files in specific folder
 ```
@@ -423,6 +443,39 @@ brightness up/down          - Adjust screen brightness
 | Package Manager | Chocolatey | Homebrew | apt/dnf/etc |
 | Frontend UI | ✅ | ✅ | ✅ |
 
+## ♿ Accessibility Information
+
+### Designed for Digital Inclusion
+
+EitherAssistant addresses the digital divide affecting people with disabilities:
+
+**Impact Statistics:**
+- **16% of global population** (1.3 billion people) experience significant disability
+- **Motor Disabilities**: 75 million people globally face keyboard/mouse usage difficulties
+- **Visual Impairments**: 2.2 billion people require screen reading and navigation assistance
+- **Digital Access Gap**: Only 54% of people with disabilities use computers vs 81% without disabilities
+
+**EitherAssistant Solutions:**
+- ✅ **Voice-only control** for users with motor disabilities
+- ✅ **Offline operation** via Vosk for users with limited connectivity
+- ✅ **Free and open source** removing cost barriers
+- ✅ **Natural language interface** reducing cognitive load
+- ✅ **Cross-platform support** working on existing devices
+
+### Technical Accessibility Features
+
+**Speech Recognition Technologies:**
+- **OpenAI Whisper**: High-accuracy online recognition (human-level performance)
+- **Vosk**: Lightweight offline recognition (50MB+ models, privacy-first)
+- **Automatic Fallback**: Seamlessly switches between online/offline modes
+
+**UI Framework:**
+- **Avalonia UI**: Built-in accessibility APIs support screen readers
+- **Keyboard Navigation**: Full keyboard support for users who prefer it
+- **Screen Reader Compatible**: Works with platform-native assistive technologies
+
+For detailed accessibility information, see `EitherAssistant_Accessibility_Report.pdf`.
+
 ## ⚠️ Known Limitations
 
 - WhatsApp integration requires manual configuration
@@ -467,14 +520,20 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🙏 Acknowledgments
 
-- **Avalonia UI** - Cross-platform UI framework
+- **Avalonia UI** - Cross-platform UI framework with accessibility support
 - **FastAPI** - Modern Python web framework
-- **Vosk** - Offline speech recognition
+- **Vosk** - Offline speech recognition (Alpha Cephei)
 - **Whisper** - OpenAI's speech recognition model
 - **Selenium** - Browser automation framework
 - **WebRTC** - Voice activity detection
 - **OpenAI Whisper** - High-accuracy speech recognition
 - **PyTorch** - Deep learning framework
+
+### Research & Statistics Sources
+- World Health Organization (2023). Disability and Health
+- Pew Research Center (2021). Americans with disabilities less likely than those without to own digital devices
+- WebAIM (2024). The WebAIM Million: Annual accessibility analysis
+- U.S. Bureau of Labor Statistics (2023). Persons with a Disability: Labor Force Characteristics
 
 ## 📞 Support
 

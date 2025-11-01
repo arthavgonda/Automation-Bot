@@ -41,6 +41,21 @@ public class PythonBackendService : IDisposable
     {
         try
         {
+            var status = await GetStatusAsync();
+            if (status != null)
+            {
+                OutputReceived?.Invoke(this, "Backend already running, connecting...");
+                await ConnectWebSocketAsync();
+                if (_webSocket?.State == WebSocketState.Open)
+                {
+                    _isConnected = true;
+                    _reconnectAttempts = 0;
+                    UpdateConnectionStatus(true);
+                    StartConnectionMonitoring();
+                    return true;
+                }
+            }
+
             OutputReceived?.Invoke(this, "Starting Python backend...");
 
             if (!await StartPythonServerAsync())
@@ -50,34 +65,42 @@ public class PythonBackendService : IDisposable
                 return false;
             }
 
-
             await Task.Delay(3000);
 
-
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
-                var status = await GetStatusAsync();
+                status = await GetStatusAsync();
                 if (status != null)
                 {
-                    await ConnectWebSocketAsync();
-                    _isConnected = true;
-                    _reconnectAttempts = 0;
-                    UpdateConnectionStatus(true);
-                    OutputReceived?.Invoke(this, "✓ Python backend connected successfully!");
-
-
-                    StartConnectionMonitoring();
-                    return true;
+                    try
+                    {
+                        await ConnectWebSocketAsync();
+                        if (_webSocket?.State == WebSocketState.Open)
+                        {
+                            _isConnected = true;
+                            _reconnectAttempts = 0;
+                            UpdateConnectionStatus(true);
+                            StartConnectionMonitoring();
+                            return true;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        if (i < 9)
+                        {
+                            await Task.Delay(1000);
+                            continue;
+                        }
+                    }
                 }
 
-                if (i < 4)
+                if (i < 9)
                 {
-                    OutputReceived?.Invoke(this, $"Waiting for backend... (attempt {i + 1}/5)");
                     await Task.Delay(1000);
                 }
             }
 
-            ErrorReceived?.Invoke(this, "Backend server started but unable to establish connection. Please check if port 8000 is available.");
+            ErrorReceived?.Invoke(this, "Backend server started but unable to establish WebSocket connection. Please check if port 8000 is available.");
             UpdateConnectionStatus(false);
             return false;
         }
@@ -102,7 +125,6 @@ public class PythonBackendService : IDisposable
             var status = await GetStatusAsync();
             if (status == null && _isConnected)
             {
-                OutputReceived?.Invoke(this, "Connection lost. Attempting to reconnect...");
                 UpdateConnectionStatus(false);
 
                 if (_reconnectAttempts < MAX_RECONNECT_ATTEMPTS)
@@ -115,24 +137,43 @@ public class PythonBackendService : IDisposable
                     {
                         _reconnectAttempts = 0;
                         UpdateConnectionStatus(true);
-                        OutputReceived?.Invoke(this, "✓ Reconnected successfully!");
                     }
                 }
                 else
                 {
-                    ErrorReceived?.Invoke(this, "Unable to reconnect to backend after multiple attempts. Please restart the application.");
+                    _reconnectAttempts = 0;
+                    var newConnection = await StartAsync();
+                    if (newConnection)
+                    {
+                        UpdateConnectionStatus(true);
+                    }
+                }
+            }
+            else if (status == null && !_isConnected)
+            {
+                if (_reconnectAttempts < MAX_RECONNECT_ATTEMPTS)
+                {
+                    _reconnectAttempts++;
+                    await Task.Delay(3000);
+                    var newConnection = await StartAsync();
+                    if (newConnection)
+                    {
+                        _reconnectAttempts = 0;
+                        UpdateConnectionStatus(true);
+                    }
+                }
+                else
+                {
+                    _reconnectAttempts = 0;
                 }
             }
             else if (status != null && !_isConnected)
             {
-                _isConnected = true;
-                UpdateConnectionStatus(true);
-                OutputReceived?.Invoke(this, "✓ Connection restored!");
+                await ReconnectAsync();
             }
         }
         catch (Exception ex)
         {
-
             System.Diagnostics.Debug.WriteLine($"Connection check error: {ex.Message}");
         }
     }
@@ -221,15 +262,34 @@ public class PythonBackendService : IDisposable
     {
         try
         {
+            if (_webSocket?.State == WebSocketState.Open)
+            {
+                return;
+            }
+
+            if (_webSocket != null)
+            {
+                try
+                {
+                    await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Reconnecting", CancellationToken.None);
+                }
+                catch { }
+                _webSocket?.Dispose();
+            }
+
             _webSocket = new ClientWebSocket();
             var uri = new Uri($"{_apiBaseUrl.Replace("http", "ws")}/ws");
 
-            await _webSocket.ConnectAsync(uri, CancellationToken.None);
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            await _webSocket.ConnectAsync(uri, cts.Token);
             _ = Task.Run(ListenWebSocketAsync);
         }
         catch (Exception ex)
         {
             ErrorReceived?.Invoke(this, $"Failed to connect WebSocket: {ex.Message}");
+            _webSocket?.Dispose();
+            _webSocket = null;
+            throw;
         }
     }
 

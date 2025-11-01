@@ -35,18 +35,6 @@ public class MainWindowViewModel : ViewModelBase
         _pythonService.ConnectionStatusChanged += OnConnectionStatusChanged;
 
 
-        Messages.Add(new MessageModel
-        {
-            Sender = "Assistant",
-            Content = "Welcome to EitherAssistant! I'm your AI voice assistant. I can help you with:\n\n" +
-                     "• System commands and file management\n" +
-                     "• Web searches and browsing\n" +
-                     "• Application downloads and installations\n" +
-                     "• Voice recognition and automation\n\n" +
-                     "Try saying 'system info' or 'search for something' to get started!",
-            IsUser = false,
-            Timestamp = DateTime.Now.ToString("HH:mm")
-        });
 
 
         SendMessageCommand = new RelayCommand(async () => await SendMessageAsync());
@@ -251,13 +239,20 @@ public class MainWindowViewModel : ViewModelBase
 
         try
         {
+            if (!_pythonService.IsConnected)
+            {
+                ConnectionStatus = "Offline";
+                await AttemptReconnectAsync();
+                await Task.Delay(1000);
+            }
+            
             if (_pythonService != null && _pythonService.IsConnected)
             {
                 var success = await _pythonService.SendCommandAsync(userCommand);
-                if (success)
+                if (!success)
                 {
-                    StatusText = "Command sent";
-                    return;
+                    ConnectionStatus = "Offline";
+                    await AttemptReconnectAsync();
                 }
             }
             else if (_pythonService != null && !_pythonService.IsConnected)
@@ -286,73 +281,116 @@ public class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            StatusText = "Initializing Python backend...";
-            ConnectionStatus = "Connecting...";
+            ConnectionStatus = "Offline";
 
             var success = await _pythonService.StartAsync();
             if (success)
             {
                 ConnectionStatus = "Online";
-                StatusText = "Python backend connected";
-
-                await _pythonService.EnableBrowserAsync();
 
                 var systemInfo = await _pythonService.GetSystemInfoAsync();
                 if (systemInfo != null)
                 {
-                    Messages.Add(new MessageModel
-                    {
-                        Sender = "System",
-                        Content = "Python backend initialized successfully!\n\nVoice recognition and system automation are now available.",
-                        IsUser = false,
-                        Timestamp = DateTime.Now.ToString("HH:mm")
-                    });
+                    await Task.Delay(1000);
+                    await ToggleVoiceAsync();
                 }
             }
             else
             {
                 ConnectionStatus = "Offline";
-                StatusText = "Failed to connect to Python backend";
-
-                Messages.Add(new MessageModel
-                {
-                    Sender = "System",
-                    Content = "Python backend is not available.\nSome features may be limited.",
-                    IsUser = false,
-                    Timestamp = DateTime.Now.ToString("HH:mm")
-                });
+                await Task.Delay(3000);
+                await AttemptReconnectAsync();
             }
         }
-        catch (Exception ex)
+        catch
         {
-            ConnectionStatus = "Error";
-            StatusText = $"Error: {ex.Message}";
+            ConnectionStatus = "Offline";
+            await Task.Delay(3000);
+            await AttemptReconnectAsync();
         }
     }
 
     private void OnPythonOutputReceived(object? sender, string output)
     {
-        Dispatcher.UIThread.Post(() =>
+        if (string.IsNullOrWhiteSpace(output))
+            return;
+            
+        var outputLower = output.ToLower();
+        
+        var skipPatterns = new[]
         {
-            StatusText = $"Python: {output}";
-        });
+            "starting python backend",
+            "python backend connected",
+            "initializing",
+            "initialized",
+            "system controller",
+            "speech detector",
+            "browser driver",
+            "whisper",
+            "vosk",
+            "network available",
+            "system initialization",
+            "waiting for backend",
+            "attempt",
+            "connected successfully",
+            "connection",
+            "reconnected",
+            "reconnect",
+            "ping",
+            "pong",
+            "looking for",
+            "mapped to",
+            "context switched",
+            "context set",
+            "action:",
+            "cleaned:",
+            "step",
+            "executing",
+            "opened:",
+            "file created:",
+            "folder created:",
+            "detected",
+            "parsing",
+            "gemini",
+            "attempting",
+        };
+        
+        var shouldSkip = skipPatterns.Any(pattern => outputLower.Contains(pattern));
+        
+        if (!shouldSkip)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                StatusText = output;
+            });
+        }
     }
 
     private void OnPythonErrorReceived(object? sender, string error)
     {
-        Dispatcher.UIThread.Post(() =>
+        if (string.IsNullOrWhiteSpace(error))
+            return;
+            
+        var errorLower = error.ToLower();
+        
+        var skipPatterns = new[]
         {
-            StatusText = error;
-
-
-            Messages.Add(new MessageModel
+            "window_handles",
+            "closed window",
+            "cannot recover",
+            "dummydriver",
+            "browser window closed",
+        };
+        
+        var shouldSkip = skipPatterns.Any(pattern => errorLower.Contains(pattern));
+        
+        if (!shouldSkip)
+        {
+            Dispatcher.UIThread.Post(() =>
             {
-                Sender = "System",
-                Content = $"⚠️ {error}",
-                IsUser = false,
-                Timestamp = DateTime.Now.ToString("HH:mm")
+                StatusText = error;
             });
-        });
+        }
     }
 
     private void OnConnectionStatusChanged(object? sender, bool isConnected)
@@ -360,20 +398,49 @@ public class MainWindowViewModel : ViewModelBase
         Dispatcher.UIThread.Post(() =>
         {
             ConnectionStatus = isConnected ? "Online" : "Offline";
-
-            if (!isConnected && Messages.Count > 0)
+            
+            if (!isConnected)
             {
-
-                Messages.Add(new MessageModel
+                _ = Task.Run(async () =>
                 {
-                    Sender = "System",
-                    Content = "⚠️ Backend connection lost. Some features may not be available.\n\n" +
-                             "The application will attempt to reconnect automatically.",
-                    IsUser = false,
-                    Timestamp = DateTime.Now.ToString("HH:mm")
+                    await Task.Delay(3000);
+                    await AttemptReconnectAsync();
                 });
             }
         });
+    }
+    
+    private async Task AttemptReconnectAsync()
+    {
+        try
+        {
+            if (!_pythonService.IsConnected)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    ConnectionStatus = "Offline";
+                });
+                
+                var success = await _pythonService.StartAsync();
+                if (success)
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        ConnectionStatus = "Online";
+                    });
+                }
+                else
+                {
+                    await Task.Delay(5000);
+                    await AttemptReconnectAsync();
+                }
+            }
+        }
+        catch
+        {
+            await Task.Delay(5000);
+            await AttemptReconnectAsync();
+        }
     }
 
     private void OnVoiceTranscriptionReceived(object? sender, string transcription)
@@ -394,40 +461,103 @@ public class MainWindowViewModel : ViewModelBase
 
     private void OnCommandResultReceived(object? sender, string result)
     {
-        Dispatcher.UIThread.Post(() =>
+        if (string.IsNullOrWhiteSpace(result))
+            return;
+            
+        var resultLower = result.ToLower();
+        
+        var skipPatterns = new[]
         {
-            Messages.Add(new MessageModel
+            "command processed",
+            "command processed successfully",
+            "executed:",
+            "action:",
+            "step",
+            "looking for",
+            "mapped to",
+            "context",
+            "opened:",
+            "opening",
+        };
+        
+        var shouldSkip = skipPatterns.Any(pattern => resultLower.Contains(pattern));
+        
+        if (!shouldSkip)
+        {
+            Dispatcher.UIThread.Post(() =>
             {
-                Sender = "Assistant",
-                Content = result,
-                IsUser = false,
-                Timestamp = DateTime.Now.ToString("HH:mm")
-            });
+                var cleanResult = result;
+                
+                if (cleanResult.Contains(" | "))
+                {
+                    var parts = cleanResult.Split(new[] { " | " }, StringSplitOptions.None);
+                    cleanResult = parts[parts.Length - 1];
+                }
+                
+                if (cleanResult.StartsWith("Created file:"))
+                {
+                    cleanResult = cleanResult.Replace("Created file: ", "Created ");
+                }
+                
+                if (cleanResult.StartsWith("Opened "))
+                {
+                    cleanResult = $"Opened {cleanResult.Substring(7)}";
+                }
+                
+                Messages.Add(new MessageModel
+                {
+                    Sender = "Assistant",
+                    Content = cleanResult.Trim(),
+                    IsUser = false,
+                    Timestamp = DateTime.Now.ToString("HH:mm")
+                });
 
-            StatusText = "Ready";
-        });
+                StatusText = "Ready";
+            });
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                StatusText = "Ready";
+            });
+        }
     }
 
     private async Task ProcessVoiceCommandAsync(string command)
     {
         try
         {
-            StatusText = "Processing voice command...";
-            await _pythonService.SendCommandAsync(command);
-        }
-        catch (Exception ex)
-        {
-            Dispatcher.UIThread.Post(() =>
+            if (!_pythonService.IsConnected)
             {
-                Messages.Add(new MessageModel
+                ConnectionStatus = "Offline";
+                await AttemptReconnectAsync();
+                await Task.Delay(1000);
+            }
+            
+            if (_pythonService.IsConnected)
+            {
+                StatusText = "Processing voice command...";
+                await _pythonService.SendCommandAsync(command);
+            }
+            else
+            {
+                Dispatcher.UIThread.Post(() =>
                 {
-                    Sender = "Assistant",
-                    Content = $"Error processing command: {ex.Message}",
-                    IsUser = false,
-                    Timestamp = DateTime.Now.ToString("HH:mm")
+                    Messages.Add(new MessageModel
+                    {
+                        Sender = "Assistant",
+                        Content = "Backend is offline. Please wait for automatic reconnection.",
+                        IsUser = false,
+                        Timestamp = DateTime.Now.ToString("HH:mm")
+                    });
                 });
-                StatusText = "Error";
-            });
+            }
+        }
+        catch
+        {
+            ConnectionStatus = "Offline";
+            await AttemptReconnectAsync();
         }
     }
 
@@ -500,67 +630,37 @@ public class MainWindowViewModel : ViewModelBase
 
     private async Task ToggleVoiceAsync()
     {
-        if (_pythonService == null || !_pythonService.IsConnected)
+        try
         {
-            Messages.Add(new MessageModel
+            if (!_pythonService.IsConnected)
             {
-                Sender = "System",
-                Content = "⚠️ Voice recognition requires backend connection.\n\n" +
-                         "Please ensure the Python backend is running and connected.",
-                IsUser = false,
-                Timestamp = DateTime.Now.ToString("HH:mm")
-            });
-            StatusText = "Voice recognition unavailable - backend offline";
-            return;
-        }
-
-        IsVoiceActive = !IsVoiceActive;
-        IsListening = IsVoiceActive;
-
-        if (IsVoiceActive)
-        {
-            Messages.Add(new MessageModel
-            {
-                Sender = "System",
-                Content = "🎤 Voice input activated. Listening...",
-                IsUser = false,
-                Timestamp = DateTime.Now.ToString("HH:mm")
-            });
-
-            try
-            {
-                var success = await _pythonService.StartVoiceRecognitionAsync();
-                if (!success)
-                {
-                    IsVoiceActive = false;
-                    IsListening = false;
-                }
+                ConnectionStatus = "Offline";
+                await AttemptReconnectAsync();
+                await Task.Delay(1000);
             }
-            catch (Exception ex)
-            {
-                StatusText = $"Error: {ex.Message}";
-                IsVoiceActive = false;
-                IsListening = false;
-            }
-        }
-        else
-        {
-            Messages.Add(new MessageModel
-            {
-                Sender = "System",
-                Content = "Voice input deactivated.",
-                IsUser = false,
-                Timestamp = DateTime.Now.ToString("HH:mm")
-            });
 
-            try
+            if (!_pythonService.IsConnected)
+            {
+                return;
+            }
+
+            if (IsListening)
             {
                 await _pythonService.StopVoiceRecognitionAsync();
+                IsListening = false;
+                IsVoiceActive = false;
             }
-            catch (Exception ex)
+            else
             {
-                StatusText = $"Error: {ex.Message}";
+                await _pythonService.StartVoiceRecognitionAsync();
+                IsListening = true;
+                IsVoiceActive = true;
             }
+        }
+        catch
+        {
+            ConnectionStatus = "Offline";
+            await AttemptReconnectAsync();
         }
     }
 
